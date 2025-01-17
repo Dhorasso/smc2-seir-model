@@ -3,9 +3,14 @@ import gc
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
+import numpy as np
+import gc
+from joblib import Parallel, delayed
+from tqdm import tqdm
+
 def SMC_squared(
     model, initial_state_info, initial_theta_info, observed_data, num_state_particles,
-    num_theta_particles, resampling_threshold=0.5, pmmh_moves=5,
+    num_theta_particles, resampling_threshold=0.5, pmmh_moves=5, c=0.5,
     resampling_method='stratified', observation_distribution='normal_approx_NB', tw=None, 
     Real_time=False, SMC2_results=None, forecast_days=0, show_progress=True
 ):
@@ -14,14 +19,15 @@ def SMC_squared(
     the state and parameters
 
     Parameters:
-    model: The model to be used for particle filtering
+    model: The model to be used for particle filtering.
     initial_state_info (dict): Information for initializing state particles.
     initial_theta_info (dict): Information for initializing theta particles.
     observed_data (pd.DataFrame): Observed data to fit the model to.
     num_state_particles (int): Number of state particles to use in the filter.
     num_theta_particles (int): Number of theta particles.
     resampling_threshold (float): Threshold for resampling based on effective sample size (ESS).
-    pmmh_moves (int): Number of PMMH move in the rejuvenation step 
+    pmmh_moves (int): Number of PMMH move in the rejuvenation step.
+    c (int): scaling factor for the covariance matrix in the PMMH kernel.
     resampling_method (str): Method for resampling ('stratified', etc.).
     observation_distribution (str): Type of observation distribution ('normal_approx_NB', etc.).
     tw (int): Window size for the (O-SMC^2).
@@ -37,7 +43,6 @@ def SMC_squared(
         - 'trajtheta': Theta trajectories.
         - 'ESS': Effective sample size over time.
         - 'acc': Acceptance rate over time.
-        - 'Nx': Number of particles over time.
     """
     num_timesteps = len(observed_data)
     
@@ -154,11 +159,11 @@ def SMC_squared(
 
             # Reset the weights and Run the PMCMC kernel 
             theta_weights = np.ones(num_theta_particles) / num_theta_particles
-            new_particles = Parallel(n_jobs=10)(delayed(PMH_kernel)(
+            new_particles = Parallel(n_jobs=10)(delayed(PMMH_kernel)(
                 model, Z[m], current_theta_particles, state_history, theta_names,
                 observed_data.iloc[max(0, t - tw):t + 1], state_names, initial_theta_info, 
                 num_state_particles, theta_mean, theta_covariance, observation_distribution,
-                m, t, tw, pmmh_moves) for m in range(num_theta_particles))
+                m, t, tw, pmmh_moves, c) for m in range(num_theta_particles))
 
             # Update particles and states
             current_theta_particles = np.array([new['theta'] for new in new_particles])
@@ -221,5 +226,4 @@ def SMC_squared(
         'state_history': state_history,
         'ESS': ESS_theta_t,
         'acc': filtered_acc,
-        'Nx': Nx,
     }
