@@ -11,9 +11,9 @@ from scipy.stats import uniform, norm, truncnorm, lognorm, gamma, invgamma
 
 def PMMH_kernel(model, Z_current, current_theta_particles, state_history, theta_names,
                observed_data, state_names, initial_theta_info, num_state_particles,
-               theta_mean_current, theta_covariance_current, observation_distribution, m, t, tw, pmmh_moves):
+               theta_mean_current, theta_covariance_current, observation_distribution, m, t, tw, pmmh_moves, c):
     """
-    Perform Particle Marginal Metropolis-Hastings (PMH) for a given model.
+    Perform Particle Marginal Metropolis-Hastings (PMMH) for a given model.
 
     Parameters:
     model: The model to be used.
@@ -31,6 +31,8 @@ def PMMH_kernel(model, Z_current, current_theta_particles, state_history, theta_
     m (int): Index of the particle.
     t (int): Current time step.
     tw (int): Window size for the (O-SMC^2).
+    pmmh_moves (int): Number of PMMH move in the rejuvenation step.
+    c (int): scaling factor for the covariance matrix in the PMMH kernel.
 
     Returns:
     dict: A dictionary containing the updated marginal likelihood ('Z'), 
@@ -38,7 +40,6 @@ def PMMH_kernel(model, Z_current, current_theta_particles, state_history, theta_
     """
 
     acc = 0
-    c = 0.5  # Scaling factor for the covariance
     I = 1e-5 * np.eye(theta_covariance_current.shape[0])  # Identity matrix for regularization
 
     # Regularization to ensure positive-definite covariance
@@ -92,7 +93,7 @@ def PMMH_kernel(model, Z_current, current_theta_particles, state_history, theta_
         'Z': Z_current,
         'state': state_current,
         'theta': theta_current, 
-        'acc': acc / PMH_steps
+        'acc': acc / pmmh_moves
     }
 
 
