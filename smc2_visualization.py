@@ -1,3 +1,15 @@
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
+import matplotlib
+import numpy as np
+import pandas as pd
+from matplotlib.dates import MonthLocator, DateFormatter, DayLocator
+
+# Importing the style package
+plt.style.use('ggplot')
+
+
+
 def trace_smc(Traject):
    """
     Process the trajectories obtain from the SMC_squared in a matrix form
@@ -24,15 +36,6 @@ def trace_smc(Traject):
     return matrix_dict
 
 
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
-import matplotlib
-import numpy as np
-import pandas as pd
-from matplotlib.dates import MonthLocator, DateFormatter, DayLocator
-
-# Importing the style package
-plt.style.use('ggplot')
 
 
 def plot_smc(matrix, ax,  col_med='steelblue', Date=None, window_size=1):
