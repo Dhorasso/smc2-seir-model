@@ -1,7 +1,7 @@
 # Sequential Monte Carlo Squared for online inference in stochastic epidemic models
 
 This repository content the Python code to run a Sequential Monte Carlo Squared (SMC^2) for online inference in a SEIR model.
-This framework supports both offline and online SMC$^2$ applications for parameter and state estimation in dynamic systems.
+This framework supports both offline and online SMC^2 applications for parameter and state estimation in dynamic systems.
 
 ---
 
@@ -37,9 +37,9 @@ The `SMC_squared` function requires the following inputs:
 - **`resampling_threshold`**: Threshold for resampling based on the effective sample size (ESS). *(Default: 0.5)*.
 - **`resampling_method`**: Resampling method (e.g., `'stratified', 'systematic', 'residual'`). *(Default: `'stratified'`)*.
 - **`observation_distribution`**: Distribution for observations (e.g., `'normal_approx_NB'`). *(Default: `'normal_approx_NB'`)*.
-- **`tw`**: Window size for online SMC².
-- **`SMC2_results`**: Results from previous SMC² runs (used as priors for online updates).
-- **`Real_time`**: Whether to run in real-time mode using prior SMC² results. *(Default: `False`)*.
+- **`tw`**: Window size for online SMC^2.
+- **`SMC2_results`**: Results from previous SMC^2 runs (used as priors for online updates).
+- **`Real_time`**: Whether to run in real-time mode using prior SMC^2 results. *(Default: `False`)*.
 - **`forecast_days`**: Number of forecast days. *(Default: `0`)*.
 - **`show_progress`**: Whether to display a progress bar during computation. *(Default: `True`)*.
 
