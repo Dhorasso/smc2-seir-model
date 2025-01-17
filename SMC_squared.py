@@ -14,7 +14,7 @@ def SMC_squared(
     the state and parameters
 
     Parameters:
-    model: The model to be used for particle filtering.
+    model: The model to be used for particle filtering
     initial_state_info (dict): Information for initializing state particles.
     initial_theta_info (dict): Information for initializing theta particles.
     observed_data (pd.DataFrame): Observed data to fit the model to.
