@@ -10,9 +10,10 @@ from smc import Particle_Filter
 from pmmh import PMMH_kernel
 from observation_dist import compute_log_weight
 
+
 def SMC_squared(
     model, initial_state_info, initial_theta_info, observed_data, num_state_particles,
-    num_theta_particles, resampling_threshold=0.5, pmmh_moves=5, c=0.5,
+    num_theta_particles, resampling_threshold=0.5, pmmh_moves=5, c=0.5,n_jobs=10,
     resampling_method='stratified', observation_distribution='normal_approx_NB', tw=None, 
     Real_time=False, SMC2_results=None, forecast_days=0, show_progress=True
 ):
@@ -30,6 +31,7 @@ def SMC_squared(
     resampling_threshold (float): Threshold for resampling based on effective sample size (ESS).
     pmmh_moves (int): Number of PMMH move in the rejuvenation step.
     c (int): scaling factor for the covariance matrix in the PMMH kernel.
+    n_jobs (int): Number of processor in the PMMH parallel computing
     resampling_method (str): Method for resampling ('stratified', etc.).
     observation_distribution (str): Type of observation distribution ('normal_approx_NB', etc.).
     tw (int): Window size for the (O-SMC^2).
@@ -45,6 +47,7 @@ def SMC_squared(
         - 'trajtheta': Theta trajectories.
         - 'ESS': Effective sample size over time.
         - 'acc': Acceptance rate over time.
+        - 'Nx': Number of particles over time.
     """
     num_timesteps = len(observed_data)
     
@@ -127,7 +130,7 @@ def SMC_squared(
             }
 
         # Process all theta particles in parallel
-        particles_update_theta = Parallel(n_jobs=10)(delayed(process_particle_theta)(m) for m in range(num_theta_particles))
+        particles_update_theta = Parallel(n_jobs=n_jobs)(delayed(process_particle_theta)(m) for m in range(num_theta_particles))
 
         # Update theta and state particles
         current_state_particles_all = np.array([p['state_particles'] for p in particles_update_theta])
@@ -227,5 +230,5 @@ def SMC_squared(
         'current_state_particles_all': current_state_particles_all,
         'state_history': state_history,
         'ESS': ESS_theta_t,
-        'acc': filtered_acc,
+        'acc': filtered_acc
     }
