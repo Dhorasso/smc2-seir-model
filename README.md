@@ -1,6 +1,9 @@
 # Sequential Monte Carlo Squared for online inference in stochastic epidemic models
 
-This repository content the code to run a Sequential Monte Carlo Squared (SMC^2)   for online inference in a SEIR model 
+This repository content the Python code to run a Sequential Monte Carlo Squared (SMC^2) for online inference in a SEIR model.
+This framework supports both offline and online SMC^2 applications for parameter and state estimation in dynamic systems.
+
+---
 
 
 ## Installation
@@ -12,39 +15,94 @@ To install and set up the environment for running this model, follow these steps
     ```
 
 
-##  Model Inputs
+## Model Inputs
 
-The  `Kernel_Smoothing_Filter` function thake as inputs:
+The `SMC_squared` function requires the following inputs:
 
-- `model`: Model function (e.g., SIR, SEIR, extended-SEIR stochastic model)
-- `initial_state_info`: Information about the initial state of the system  (dictionary)
-- `initial_theta_info`: Initial parameters information  (dictionary)
-- `observed_data`: Observed data (a DataFrame)
-- `num_particles`: Number of particles 
-- `resampling_threshold`: Threshold for effective sample size in resampling  
-- `delta`: Parameter for updating theta during resampling  (default is 0.99) 
-- `population_size`: Total population size  
-- `resampling_method`: Method for particle resampling ('stratified' by default)  
-- `observation_distribution`: Distribution of observations ('poisson by default) 
-- `forecast_days`: Number of days to forecast  (default is 0)
-- `dt`: Time step (default is 1)
-- `num_cores`: Number of processor to be used in parallel ( defaut all available -1) 
-- `show_progress`: Whether to display a progress bar during computation  (default is TRue)
+### Required Parameters
+- **`model`**: The model function (e.g., SIR, SEIR, or other stochastic models).
+- **`initial_state_info`**: Dictionary specifying the prior distributions for state variables. Each state variable should include:
+  - `[lower_bound, upper_bound, mean, std_deviation, distribution_type]`.
+- **`initial_theta_info`**: Dictionary specifying the prior distributions for parameters. Each parameter should include:
+  - `[lower_bound/shape, upper_bound/scale, mean, std_deviation, distribution_type]`.
+  Supported distributions include:
+  `'uniform'`, `'normal'`, `'truncnorm'`, `'lognormal'`, `'gamma'`, `'invgamma'`.
+- **`observed_data`**: Observed data in a `pandas.DataFrame` format with the column name of observation data `'obs'`.
+- **`num_state_particles`**: Number of state particles to use in the Particle_Filter.
+- **`num_theta_particles`**: Number of parameter particles.
 
-#### Initial State Information (`initial_state_info`)
+### Optional Parameters
+- **`resampling_threshold`**: Threshold for resampling based on the effective sample size (ESS). *(Default: 0.5)*.
+- **`resampling_method`**: Resampling method (e.g., `'stratified', 'systematic', 'residual'`). *(Default: `'stratified'`)*.
+- **`observation_distribution`**: Distribution for observations (e.g., `'normal_approx_NB'`). *(Default: `'normal_approx_NB'`)*.
+- **`tw`**: Window size for online SMC².
+- **`SMC2_results`**: Results from previous SMC² runs (used as priors for online updates).
+- **`Real_time`**: Whether to run in real-time mode using prior SMC² results. *(Default: `False`)*.
+- **`forecast_days`**: Number of forecast days. *(Default: `0`)*.
+- **`show_progress`**: Whether to display a progress bar during computation. *(Default: `True`)*.
 
-The `initial_state_info` dictionary should contain the initial state variables of the model. Each state variable should be defined with the following information:
-- `state name `and  `prior distribution`: A list specifying `[lower_bound, upper_bound, mean, std_deviation, distribution_type]`.
+---
 
-#### Initial Parameters Information (`initial_theta_info`)
+## Model Outputs
 
- The initial_theta_info dictionary should contain the initial parameters of the model. Each parameter should be defined with the following information:
+The function returns a dictionary containing:
+- **`margLogLike`**: Marginal log-likelihood of the observed data given the model.
+- **`trajState`**: State variable trajectories over time.
+- **`trajtheta`**: Parameter trajectories over time.
+- **`ESS`**: Effective sample size over time.
+- **`acc`**: Acceptance rate over time.
+- **`current_theta_particles`**: Current parameter particles.
+- **`current_state_particles`**: Current state particles.
+- **`current_state_particles_all`**: All state particles at the current time step.
+- **`state_history`**: History of state trajectories.
 
-- `parameter name` and `prior distribution`: A list specifying `[lower_bound/shape, upper_bound/scale, mean, std_deviation, distribution_type]`.The distribution can be 'uniform', 'normal', 'trunorm', 'lognormal', 'gamma', or 'invgamma'. The lower and upper values only work for 'uniform' and 'trunorm'.
-
-##  Model Outputs 
-- `margLogLike`: Marginal log-likelihood of the observed data given the model.
-- `trajState`: Trajectories of the state variables over time.
-- `trajtheta`: Trajectories of the model parameters over time.
+---
 
 ## Example Usage
+
+Here’s an example of using the `SMC_squared` function with an SEIR model:
+
+```python
+N_pop = 4965439
+Ips_0_min = 10
+Ips_0_max = 50
+E_0 = 1
+S_0_min = N_pop - Ips_0_max - E_0
+S_0_max = N_pop - Ips_0_min - E_0
+
+# Initial state information
+state_info = {
+    'S': {'prior': [S_0_min, S_0_max, 0, 0, 'uniform']},
+    'E': {'prior': [E_0, E_0, 0, 0, 'uniform']},
+    'A': {'prior': [Ips_0_min, Ips_0_max, 0, 0, 'uniform']},
+    'I': {'prior': [0, 0, 0, 0, 'uniform']},
+    'R': {'prior': [0, 0, 0, 0, 'uniform']},
+    'NI': {'prior': [0, 0, 0, 0, 'uniform']},
+    'B': {'prior': [0.6, 0.8, 0, 0, 'uniform']}
+}
+
+# Initial parameter information
+theta_info = {
+    'ra': {'prior': [0.1, 0.5, 0.15, 0.05, 'uniform', 'logit']},
+    'pa': {'prior': [0.3, 1, 0.15, 0.05, 'uniform', 'logit']},
+    'sigma': {'prior': [1/5, 1/3, 1/4, 0.1, 'truncnorm', 'log']},
+    'gamma': {'prior': [1/7.5, 1/4.5, 1/6, 0.2, 'truncnorm', 'log']},
+    'nu_beta': {'prior': [0.05, 0.15, 0.1, 0.05, 'uniform', 'log']},
+    'phi': {'prior': [0.01, 0.2, 0, 0, 'uniform', 'log']}
+}
+
+# Running the SMC^2 function
+results = SMC_squared(
+    model=stochastic_model_covid,
+    initial_state_info=state_info,
+    initial_theta_info=theta_info,
+    observed_data=data,
+    num_state_particles=500,
+    num_theta_particles=1000,
+    observation_distribution='normal_approx_NB',
+    tw=80,
+    forecast_days=projection_day,
+    show_progress=True
+)
+
+print("Marginal log-likelihood:", results['margLogLike'])
