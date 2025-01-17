@@ -22,7 +22,7 @@ The `SMC_squared` function requires the following inputs:
 ### Required Parameters
 - **`model`**: The model function (e.g., SIR, SEIR, or other stochastic models).
 - **`initial_state_info`**: Dictionary specifying the prior distributions for state variables. Each state variable should include:
-  - `[lower_bound, upper_bound, mean, std_deviation, distribution_type]`.
+  - `[lower_bound, upper_bound, mean, std_deviation, distribution_type, transformation]`.
 - **`initial_theta_info`**: Dictionary specifying the prior distributions for parameters. Each parameter should include:
   - `[lower_bound/shape, upper_bound/scale, mean, std_deviation, distribution_type, transformation]`.
     
