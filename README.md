@@ -25,10 +25,9 @@ The `SMC_squared` function requires the following inputs:
   - `[lower_bound, upper_bound, mean, std_deviation, distribution_type]`.
 - **`initial_theta_info`**: Dictionary specifying the prior distributions for parameters. Each parameter should include:
   - `[lower_bound/shape, upper_bound/scale, mean, std_deviation, distribution_type, transformation]`.
-  Supported distributions include:
-  `'uniform'`, `'normal'`, `'truncnorm'`, `'lognormal'`, `'gamma'`, `'invgamma'`.
-  Supported transformation (apply to the drawn constraint values) include:
- `'log'`, `'logit'`. if not define then it remain the same.
+    
+    - Supported distributions include: `'uniform'`, `'normal'`, `'truncnorm'`, `'lognormal'`, `'gamma'`, `'invgamma'`.
+    - Supported transformation (apply to the drawn constraint values) include: `'log'`, `'logit'`. if not define then it remain the same.
 - **`observed_data`**: Observed data in a `pandas.DataFrame` format with the column name of observation data `'obs'`.
 - **`num_state_particles`**: Number of state particles to use in the Particle_Filter.
 - **`num_theta_particles`**: Number of parameter particles.
