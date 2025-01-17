@@ -34,6 +34,7 @@ The `SMC_squared` function requires the following inputs:
 
 ### Optional Parameters
 - **`resampling_threshold`**: Threshold for resampling based on the effective sample size (ESS). *(Default: 0.5)*.
+- **`pmmh_moves `**: Number of PMMH move in the rejuvenation step. *(Default: 5)*
 - **`resampling_method`**: Resampling method (`'stratified', 'systematic', 'residual', or 'multinomial'`). *(Default: `'stratified'`)*.
 - **`observation_distribution`**: Distribution for observations (`'poisson', 'normal', 'normal_approx_NB', or 'negative_binomial`). *(Default: `'poisson'`)*.
 - **`tw`**: Window size for online SMC^2 (If the it run the full-SMC^2).
