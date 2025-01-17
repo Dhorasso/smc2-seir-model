@@ -1,3 +1,11 @@
+################################################################################################################
+# This function contains the different observation distribution
+#  **IMPORTANT NOTE**: (1) Make sure make sure the column name of the obseration is 'obs' or  change 'obs' here by the actual column name
+#                      (2) Make sure make sure the column name of the model state you use to link with observastio is
+#                          'NI' or change it here to have the same name
+##################################################################################################################
+
+
 import numpy as np
 from scipy.stats import poisson, norm, nbinom
 
