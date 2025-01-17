@@ -13,7 +13,7 @@ from observation_dist import compute_log_weight
 
 def SMC_squared(
     model, initial_state_info, initial_theta_info, observed_data, num_state_particles,
-    num_theta_particles, resampling_threshold=0.5, pmmh_moves=5, c=0.5,n_jobs=10,
+    num_theta_particles, resampling_threshold=0.5, pmmh_moves=5, c=0.5, n_jobs=10,
     resampling_method='stratified', observation_distribution='normal_approx_NB', tw=None, 
     Real_time=False, SMC2_results=None, forecast_days=0, show_progress=True
 ):
