@@ -1,5 +1,9 @@
 def trace_smc(Traject):
-
+   """
+    Process the trajectories obtain from the SMC_squared in a matrix form
+   """
+   
+    
     matrix_dict = {}
     stateName=list(Traject[0].columns[1:])
     # Iterate through each state name
@@ -19,44 +23,6 @@ def trace_smc(Traject):
 
     return matrix_dict
 
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
-import matplotlib
-import numpy as np
-import pandas as pd
-from matplotlib.dates import MonthLocator, DateFormatter, DayLocator
-
-# Importing the style package
-plt.style.use('ggplot')
-
-def corrected_matrix(matrix):
-    # Calculate the IQR for each column
-    q1 = np.percentile(matrix, 25, axis=0)
-    q3 = np.percentile(matrix, 75, axis=0)
-    iqr = q3 - q1
-    
-    # Calculate the lower and upper bounds for outliers
-    lower_bound = q1 - 1.5 * iqr
-    upper_bound = q3 + 1.5 * iqr
-    
-    # Replace outliers with appropriate values
-    for col in range(matrix.shape[1]):
-        col_values = matrix[:, col]
-        col_non_outliers = col_values[(col_values >= lower_bound[col]) & (col_values <= upper_bound[col])]
-        max_non_outlier = np.mean(col_non_outliers)
-        min_non_outlier = np.mean(col_non_outliers)
-        
-        # Replace outliers above the upper bound
-        outliers_above = col_values[col_values > upper_bound[col]]
-        if len(outliers_above) > 0:
-            matrix[col_values > upper_bound[col], col] = max_non_outlier
-        
-        # Replace outliers below the lower bound
-        outliers_below = col_values[col_values < lower_bound[col]]
-        if len(outliers_below) > 0:
-            matrix[col_values < lower_bound[col], col] = min_non_outlier
-    
-    return matrix
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
@@ -68,47 +34,15 @@ from matplotlib.dates import MonthLocator, DateFormatter, DayLocator
 # Importing the style package
 plt.style.use('ggplot')
 
-def corrected_matrix(matrix):
-    # Calculate the IQR for each column
-    q1 = np.percentile(matrix, 25, axis=0)
-    q3 = np.percentile(matrix, 75, axis=0)
-    iqr = q3 - q1
-    
-    # Calculate the lower and upper bounds for outliers
-    lower_bound = q1 - 1.5 * iqr
-    upper_bound = q3 + 1.5 * iqr
-    
-    # Replace outliers with appropriate values
-    for col in range(matrix.shape[1]):
-        col_values = matrix[:, col]
-        col_non_outliers = col_values[(col_values >= lower_bound[col]) & (col_values <= upper_bound[col])]
-        max_non_outlier = np.mean(col_non_outliers)
-        min_non_outlier = np.mean(col_non_outliers)
-        
-        # Replace outliers above the upper bound
-        outliers_above = col_values[col_values > upper_bound[col]]
-        if len(outliers_above) > 0:
-            matrix[col_values > upper_bound[col], col] = max_non_outlier
-        
-        # Replace outliers below the lower bound
-        outliers_below = col_values[col_values < lower_bound[col]]
-        if len(outliers_below) > 0:
-            matrix[col_values < lower_bound[col], col] = min_non_outlier
-    
-    return matrix
 
-
-
-def plot_smc(matrix, ax, color='skyblue', col1='steelblue', col2='midnightblue', Date=None, smooth=False, window_size=1):
+def plot_smc(matrix, ax,  col_med='steelblue', Date=None, window_size=1):
     """
-    Plot the SMC results using Matplotlib.
+    Plot the SMC^2 results using Matplotlib.
     
     Parameters:
     matrix: The input matrix where columns represent time steps and rows represent samples.
     ax: The matplotlib axis to plot on.
-    color: The main color for the plot (used for the outermost ribbon).
-    col1: The color for the middle ribbon (50% credible interval).
-    col2: The color for the median line.
+    col_med: The color for the median line. 
     Date: Optional date array for x-axis. If None, numeric time steps are used.
     smooth: Boolean flag to apply smoothing to the curves.
     window_size: The window size for smoothing (default is 7).
@@ -121,18 +55,12 @@ def plot_smc(matrix, ax, color='skyblue', col1='steelblue', col2='midnightblue',
     median_values = np.nanmedian(matrix, axis=0)
 
     # Calculate the 95%, 90%, 75%, and 50% credible intervals
-    credible_interval_95 = np.nanpercentile(matrix, [2.5, 97.5], axis=0)
-    credible_interval_90 = np.nanpercentile(matrix, [5, 95], axis=0)
-    credible_interval_75 = np.nanpercentile(matrix, [12.5, 85.5], axis=0)
-    credible_interval_50 = np.nanpercentile(matrix, [25, 75], axis=0)
 
-    # Apply smoothing if needed
-    if smooth:
-        median_values = pd.Series(median_values).rolling(window=window_size, min_periods=1).mean().values
-        credible_interval_95 = pd.DataFrame(credible_interval_95).T.rolling(window=window_size, min_periods=1).mean()
-        credible_interval_90 = pd.DataFrame(credible_interval_90).T.rolling(window=window_size, min_periods=1).mean()
-        credible_interval_75 = pd.DataFrame(credible_interval_75).T.rolling(window=window_size, min_periods=1).mean()
-        credible_interval_50 = pd.DataFrame(credible_interval_50).T.rolling(window=window_size, min_periods=1).mean()
+    median_values = pd.Series(median_values).rolling(window=window_size, min_periods=1).mean().values
+    credible_interval_95 = pd.DataFrame(credible_interval_95).T.rolling(window=window_size, min_periods=1).mean()
+    credible_interval_90 = pd.DataFrame(credible_interval_90).T.rolling(window=window_size, min_periods=1).mean()
+    credible_interval_75 = pd.DataFrame(credible_interval_75).T.rolling(window=window_size, min_periods=1).mean()
+    credible_interval_50 = pd.DataFrame(credible_interval_50).T.rolling(window=window_size, min_periods=1).mean()
 
     # Define time steps as either numeric or date-based
     T = matrix.shape[1]
@@ -151,7 +79,7 @@ def plot_smc(matrix, ax, color='skyblue', col1='steelblue', col2='midnightblue',
     ax.fill_between(time_steps, credible_interval_50[0], credible_interval_50[1], color=blues(0.75), label='50% CrI')
 
     # Plot the median line
-    ax.plot(time_steps, median_values, color=col2, lw=2.5, label='Median')
+    ax.plot(time_steps, median_values, color=col_med, lw=2.5, label='Median')
 
     # Add grid, legend, and ticks
     
@@ -174,3 +102,32 @@ def plot_smc(matrix, ax, color='skyblue', col1='steelblue', col2='midnightblue',
     # Add legend
     # ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), frameon=False)
 
+
+def corrected_matrix(matrix):
+    # Calculate the IQR for each column
+    q1 = np.percentile(matrix, 25, axis=0)
+    q3 = np.percentile(matrix, 75, axis=0)
+    iqr = q3 - q1
+    
+    # Calculate the lower and upper bounds for outliers
+    lower_bound = q1 - 1.5 * iqr
+    upper_bound = q3 + 1.5 * iqr
+    
+    # Replace outliers with appropriate values
+    for col in range(matrix.shape[1]):
+        col_values = matrix[:, col]
+        col_non_outliers = col_values[(col_values >= lower_bound[col]) & (col_values <= upper_bound[col])]
+        max_non_outlier = np.mean(col_non_outliers)
+        min_non_outlier = np.mean(col_non_outliers)
+        
+        # Replace outliers above the upper bound
+        outliers_above = col_values[col_values > upper_bound[col]]
+        if len(outliers_above) > 0:
+            matrix[col_values > upper_bound[col], col] = max_non_outlier
+        
+        # Replace outliers below the lower bound
+        outliers_below = col_values[col_values < lower_bound[col]]
+        if len(outliers_below) > 0:
+            matrix[col_values < lower_bound[col], col] = min_non_outlier
+    
+    return matrix
