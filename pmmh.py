@@ -1,5 +1,5 @@
 ########################################################################
-# This file content the codes for the Particle Marginal Metropolis-Hasting (PMMH) kernel
+# This file contains the codes for the Particle Marginal Metropolis-Hasting (PMMH) kernel
 #  and the log prior distribution
 ############################################################################
 
