@@ -11,7 +11,7 @@ from joblib import Parallel, delayed  # For parallel computing
 from plotnine import*
 from tqdm import tqdm 
 
-############ import your dataset #######################################
+############  SEPTP 1:import your dataset #######################################
 # Assuming the uploaded file is named "COVID-19_HPSC_Detailed_Statistics_Profile.csv"
 ######################################################################
 file_path = r"COVID-19_HPSC_Detailed_Statistics_Profile.csv"
@@ -42,7 +42,7 @@ data = data.rename(columns={'ConfirmedCovidCases': 'obs'})
 
 ##############################################################################################
 
-########### Define your compartmental model########################################################
+########### SEPTP 2: Define your compartmental model########################################################
 # The epi_model.py file contains others example of SEIR models
 #############################################################################################
 
@@ -116,6 +116,23 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
 
 ######################################################################################################################################
 
-############ Define your observation distribution #####################################################################################
+############ SEPTP 3: Define your observation distribution #####################################################################################
 # The observation_dist.py contains some examples, you extend to incorporate multiple dataste
+#######################################################################################################################################
+
+def obs_dist_normal_approx_NB(observed_data, model_data, theta, theta_names):
+    epsi = 1e-4
+    model_est_case = np.maximum(epsi, model_data['NI'].to_numpy())
+    param = dict(zip(theta_names, theta))
+    overdispersion = param.get('phi', 0.1)  # Default value for 'phi' if not provided
+    variance = model_est_case * (1 + overdispersion * model_est_case)
+    variance = np.maximum(variance, 1)  # Ensure variance is at least 1
+    log_likelihoods = norm.logpdf(observed_data['obs'], loc=model_est_case, scale=np.sqrt(variance))
+    log_likelihoods[np.isnan(log_likelihoods) | np.isinf(log_likelihoods)] = -np.inf
+    return log_likelihoods
+
+######################################################################################################################################
+
+############ SEPTP 4: Run the SMC^2 #####################################################################################
+# You need to defined initial conditions for the state and prior for the parameter you want to estimate
 #######################################################################################################################################
