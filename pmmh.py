@@ -56,19 +56,25 @@ def PMMH_kernel(model, Z_current, current_theta_particles, state_history, theta_
     log_prior_current = log_prior(initial_theta_info, theta_current)
 
     for i in range(pmmh_moves):
-        # Sample theta proposal from multivariate normal
-        theta_proposal = np.random.multivariate_normal(theta_mean_current, theta_covariance_current)
+        # Handle 1D theta separately
+        if theta_mean_current.shape[0] == 1:
+            theta_proposal = np.random.normal(theta_mean_current, np.sqrt(theta_covariance_current[0, 0]))
+        else:
+            theta_proposal = np.random.multivariate_normal(theta_mean_current, theta_covariance_current)
+        
         log_prior_proposal = log_prior(initial_theta_info, theta_proposal)
 
         if log_prior_proposal != -np.inf:
             # Evaluate the current and proposal log-posterior
-            current = Z_current + log_prior_current 
+            current = Z_current + log_prior_current
             
             # Run particle filter to evaluate proposal likelihood
             untrans_theta_proposal = untransform_theta(theta_proposal, initial_theta_info)
-            PF_results = Particle_Filter(model, state_names, state_current_t_k, untrans_theta_proposal, 
-                                         theta_names, observed_data, num_state_particles, resampling_method='stratified', 
-                                         observation_distribution=observation_distribution)
+            PF_results = Particle_Filter(
+                model, state_names, state_current_t_k, untrans_theta_proposal,
+                theta_names, observed_data, num_state_particles,
+                resampling_method='stratified', observation_distribution=observation_distribution
+            )
             
             Z_proposal = PF_results['margLogLike']
             state_proposal = PF_results['particle_state']
@@ -80,11 +86,11 @@ def PMMH_kernel(model, Z_current, current_theta_particles, state_history, theta_
             
             # Compute the acceptance ratio
             ratio = proposal - current
-            r = np.exp(ratio)
+            alpha = np.exp(ratio)
 
             # Ensure the acceptance probability is real
-            if np.isreal(r):
-                if np.random.uniform() < min(1, r):
+            if np.isreal(alpha):
+                if np.random.uniform() < min(1, alpha):
                     Z_current = Z_proposal
                     state_current = state_proposal
                     theta_current = theta_proposal
@@ -118,8 +124,12 @@ def log_multivariate_normal_pdf(x, mean, cov):
     of constant of proportionality.
     """
     diff = x - mean
-    cov_inv = np.linalg.inv(cov)  # Inverse of covariance matrix    
-    return -0.5 *np.dot(diff.T, np.dot(cov_inv, diff))
+    if mean.shape[0] == 1:
+        cov_inv = 1 / cov[0, 0]  # Simplify for 1D
+        return -0.5 * (diff ** 2 * cov_inv)
+    else:
+        cov_inv = np.linalg.inv(cov)  # Inverse of covariance matrix    
+        return -0.5 * np.dot(diff.T, np.dot(cov_inv, diff))
 
 
 ##################################################################
