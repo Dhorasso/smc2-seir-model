@@ -51,13 +51,16 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
 
     # Transition probabilities (vectorized)
     P_SE = 1 - np.exp(-B * (I + ra * A) / N * dt)  # Susceptible → Exposed
-    P_EI = 1 - np.exp(-sigma * dt)                 # Exposed → Infected
-    P_IR = 1 - np.exp(-gamma * dt)                  # Infected → Recovered
-
+    P_EAI = 1 - np.exp(-sigma * dt)                 # Exposed → Asymptomatic/Infected
+    P_AR = 1 - np.exp(-gamma * dt)                  # Asymptomatic → Recovered
+    P_IR = P_AR                                      # Infected → Recovered
 
     # Simulate transitions using binomial draws
     Y_SE = np.random.binomial(S.astype(int), P_SE)   # S → E
-    Y_EI = np.random.binomial(E.astype(int), P_EAI)  # E → I
+    Y_EAI = np.random.binomial(E.astype(int), P_EAI)  # E → A/I
+    Y_EA = np.random.binomial(Y_EAI, pa)              # E → A
+    Y_EI = Y_EAI - Y_EA                               # E → I
+    Y_AR = np.random.binomial(A.astype(int), P_AR)    # A → R
     Y_IR = np.random.binomial(I.astype(int), P_IR)    # I → R
 
     # Update compartments
@@ -67,7 +70,7 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
     I_next = I + Y_EI - Y_IR
     R_next = R + Y_AR + Y_IR
     
-    # Update transmission rate with stochastic volatility 
+    # Update transmission rate with stochastic volatility
     B_next = B * np.exp(nu_beta * np.random.normal(0, 1, size=B.shape) * dt)
 
     # Update new infections
