@@ -2,12 +2,12 @@ import numpy as np
 import pandas as pd
 import gc
 from state_process import state_transition
-from observation_dist import compute_log_weight
+#from observation_dist import compute_log_weight
 
 
 def Particle_Filter(model, state_names, current_state_particles, theta, theta_names, observed_data, 
-                    num_state_particles, resampling_method='stratified', 
-                    observation_distribution='normal_approx_NB', add=0, end=False, forecast_days=0):
+                    num_state_particles, observation_distribution, resampling_method='stratified', 
+                    add=0, end=False, forecast_days=0):
     """
     Perform Particle Filter to estimate the state and compute the marginal log-likelihood.
 
@@ -17,8 +17,8 @@ def Particle_Filter(model, state_names, current_state_particles, theta, theta_na
     - current_state_particles (ndarray): The initial state particles.
     - theta (ndarray): Model parameters.
     - theta_names (list): Names of the theta parameters.
-    - observed_data (pd.DataFrame): Observed data for likelihood calculation.
     - num_state_particles (int): Number of particles.
+    - observation_distribution (func): Type of likelihood function.
     - resampling_method (str): Resampling method ('stratified', 'systematic', etc.).
     - observation_distribution (str): Type of observation distribution 
     - add (int): Flag to indicate whether to store state history.
@@ -50,7 +50,7 @@ def Particle_Filter(model, state_names, current_state_particles, theta, theta_na
 
         # Compute log weights for the model if within observed data range
         if t < num_timesteps:
-            weights = compute_log_weight(current_data_point, trajectories, theta, theta_names, observation_distribution)
+            weights = observation_distribution(current_data_point, trajectories, theta, theta_names, observation_distribution)
 
             # Normalize and resample Particles
             A = np.max(weights)
