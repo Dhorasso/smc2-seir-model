@@ -20,7 +20,7 @@ To install and set up the environment for running this model, follow these steps
 The `SMC_squared` function requires the following inputs:
 
 ### Required Parameters
-- **`model`**: The model function (e.g., SIR, SEIR, or other stochastic models).  The user can refer to  the file [epi_model.py](https://github.com/Dhorasso/smc2_seir/blob/main/epi_model.py) for example. 
+- **`model`**: The model function (e.g., SIR, SEIR, or other stochastic models).  The user can refer to  the file [epi_model.py](https://github.com/Dhorasso/smc2_seir/blob/main/epi_model.py) for some examples. 
 - **`initial_state_info`**: Dictionary specifying the prior distributions for state variables. Each state variable should include:
   - `[lower_bound, upper_bound, mean, std_deviation, distribution_type, transformation]`.
 - **`initial_theta_info`**: Dictionary specifying the prior distributions for parameters. Each parameter should include:
@@ -31,7 +31,7 @@ The `SMC_squared` function requires the following inputs:
 - **`observed_data`**: Observed data in a `pandas.DataFrame` format with the column name of observation data `'obs'`.
 - **`num_state_particles`**: Number of state particles to use in the Particle_Filter.
 - **`num_theta_particles`**: Number of parameter particles.
-- - **`observation_distribution`**: Probability distribution for observations. The user can refer to  the file [observation_dist.py](https://github.com/Dhorasso/smc2_seir/blob/main/observation_dist.py) for example. 
+- - **`observation_distribution`**: Probability distribution for observations. The user can refer to  the file [observation_dist.py](https://github.com/Dhorasso/smc2_seir/blob/main/observation_dist.py) for some examples. 
 
 ### Optional Parameters
 - **`resampling_threshold`**: Threshold for resampling based on the effective sample size (ESS). *(Default: 0.5)*.
