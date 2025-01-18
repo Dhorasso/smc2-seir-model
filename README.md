@@ -20,7 +20,7 @@ To install and set up the environment for running this model, follow these steps
 The `SMC_squared` function requires the following inputs:
 
 ### Required Parameters
-- **`model`**: The model function (e.g., SIR, SEIR, or other stochastic models).
+- **`model`**: The model function (e.g., SIR, SEIR, or other stochastic models).  The user can refer to  the file [epi_model.py](https://github.com/Dhorasso/smc2_seir/blob/main/epi_model.py) for example. 
 - **`initial_state_info`**: Dictionary specifying the prior distributions for state variables. Each state variable should include:
   - `[lower_bound, upper_bound, mean, std_deviation, distribution_type, transformation]`.
 - **`initial_theta_info`**: Dictionary specifying the prior distributions for parameters. Each parameter should include:
@@ -31,6 +31,7 @@ The `SMC_squared` function requires the following inputs:
 - **`observed_data`**: Observed data in a `pandas.DataFrame` format with the column name of observation data `'obs'`.
 - **`num_state_particles`**: Number of state particles to use in the Particle_Filter.
 - **`num_theta_particles`**: Number of parameter particles.
+- - **`observation_distribution`**: Probability distribution for observations. The user can refer to  the file [observation_dist.py](https://github.com/Dhorasso/smc2_seir/blob/main/observation_dist.py) for example. 
 
 ### Optional Parameters
 - **`resampling_threshold`**: Threshold for resampling based on the effective sample size (ESS). *(Default: 0.5)*.
@@ -38,7 +39,6 @@ The `SMC_squared` function requires the following inputs:
 - **`c`**: Scaling factor for the covariance matrix in the PMMH kernel. *(Default: 0.5)*
 - **`n_jobs`**: Number of processor in the PMMH parallel computing   *(Default: 10)* user can increase depending computer performance
 - **`resampling_method`**: Resampling method (`'stratified', 'systematic', 'residual', or 'multinomial'`). *(Default: `'stratified'`)*.
-- **`observation_distribution`**: Distribution for observations (`'poisson', 'normal', 'normal_approx_NB', or 'negative_binomial`). *(Default: `'poisson'`)*.
 - **`tw`**: Window size for online SMC^2 (If the it run the full-SMC^2).
 - **`SMC2_results`**: Results from previous SMC^2 runs (used as priors for online updates).
 - **`Real_time`**: Whether to run in real-time mode using prior SMC^2 results. *(Default: `False`)*.
