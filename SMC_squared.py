@@ -28,7 +28,7 @@ def SMC_squared(
     observed_data (pd.DataFrame): Observed data to fit the model to.
     num_state_particles (int): Number of state particles to use in the filter.
     num_theta_particles (int): Number of theta particles.
-    observation_distribution (func): Type of observation distribution.
+    observation_distribution (func): Type of observation likelihood.
     resampling_threshold (float): Threshold for resampling based on effective sample size (ESS).
     pmmh_moves (int): Number of PMMH move in the rejuvenation step.
     c (int): scaling factor for the covariance matrix in the PMMH kernel.
