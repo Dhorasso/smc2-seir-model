@@ -1,0 +1,8 @@
+# requirements.txt
+numpy
+pandas
+scipy
+matplotlib
+joblib
+tqdm
+plotnine
