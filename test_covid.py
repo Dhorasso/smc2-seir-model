@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from joblib import Parallel, delayed  # For parallel computing
 from plotnine import*
 from tqdm import tqdm 
+from scipy.stats import poisson, norm, nbinom
 from smc_visualization import trace_smc, plot_smc
 
 ############  SEPTP 1:import your dataset #######################################
@@ -81,8 +82,8 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
     param = dict(zip(theta_names, theta))
     pa = param.get('pa', 0.5)  # Default value for `pa` if not specified
     ra = param.get('ra', 0.5)  # Default value for `ra` if not specified
-    sigma = param['sigma']
-    gamma = param['gamma']
+    sigma = parasmc2_results ['sigma']
+    gamma = parasmc2_results ['gamma']
     nu_beta = param.get('nu_beta', 0.1)  # Default value for `nu_beta` if not specified
 
     # Transition probabilities (vectorized)
@@ -170,7 +171,7 @@ theta_info = {
 }
 
 # Running the SMC^2 function
-results = SMC_squared(
+smc2_results = SMC_squared(
     model=stochastic_model_covid,
     initial_state_info=state_info,
     initial_theta_info=theta_info,
@@ -184,10 +185,120 @@ results = SMC_squared(
 )
 
 # Print the Marginal log-likelihood
-print("Marginal log-likelihood:", results['margLogLike'])
+print("Marginal log-likelihood:", smc2_results['margLogLike'])
 
 ####################################################################################################################################################
 
 ########## SETP5: Visualize the Results ###############################################################################
 # You can plot the filtered estimate of the state and parametersx
 ###########################################################################################################################
+
+# state trajectory particles and extract corresponding matrix
+state_trajectory_particles = smc2_results ['trajState']
+state_matrix_dict = trace_smc(state_trajectory_particles)
+
+# Initialize parameter trajectory particles and extract corresponding matrix
+parameter_trajectory_particles = smc2_results ['trajtheta']
+theta_matrix_dict = trace_smc(parameter_trajectory_particles)
+
+# Extract median values for parameters
+gamma = np.nanmedian(theta_matrix_dict['gamma'][:, -1])  # Median recovery rate
+pa = np.nanmedian(theta_matrix_dict['pa'][:, -1])        # Fraction of infections that are asymptomatic
+ra = np.nanmedian(theta_matrix_dict['ra'][:, -1])        # Relative recovery rate for asymptomatic cases
+
+# Calculate the effective reproduction number Rt and add it to the satate dict
+state_matrix_dict['Rt'] = (
+    state_matrix_dict['B'] * 
+    ((1 - pa) * 1 / gamma + pa * ra * 1 / gamma) * 
+    state_matrix_dict['S'] / N_pop
+)
+
+########################################################################################################################################
+
+# Set up a 1-row, 2-column figure layout
+fig, axs = plt.subplots(1, 2, figsize=(10*2, 2.5*2))  # 1 row, 2 columns
+
+# Plot 'NI' (New Infections) on the first subplot
+for state, matrix in state_matrix_dict.items():
+    if state == 'NI':
+        # Plot model predictions using plot_smc function
+        plot_smc(matrix, ax=axs[0], Date=data['Date'])  # Use d1 for Date
+        # Scatter observed data for fitting and forecasting
+        axs[0].scatter(
+            data['Date'][:days], data['ConfirmedCovidCases'][:days],
+            color='orange', edgecolor='salmon', s=30, label='Observed Data'
+        )
+
+
+        # Set labels for the 'NI' plot
+        axs[0].set_xlabel('Date', fontsize=14, fontweight='bold')
+        axs[0].set_ylabel('Daily New Cases', fontsize=14, fontweight='bold')
+        axs[0].legend(loc='upper right', fontsize=14)
+        # axs[0].axvline(x=d4['Date'][days4 - 1], color='white', linestyle=':', linewidth=0.1)
+
+# Plot 'Rt' (Effective Reproduction Number) on the second subplot
+for state, matrix in state_matrix_dict.items():
+    if state == 'Rt':
+        # Plot the effective reproduction number using plot_smc function
+        plot_smc(matrix, ax=axs[1], Date=data['Date'], window=7) ## we have use here a 7 days moving average (default is 1)
+        # Add a horizontal line at Rt = 1
+        axs[1].axhline(y=1, color='k', linestyle='--', linewidth=3, label='$R_{eff}(t) = 1$')
+
+        # Set limits and labels for the 'Rt' plot
+        axs[1].set_ylim(0, 8)
+        axs[1].set_xlabel('Date', fontsize=14, fontweight='bold')
+        axs[1].set_ylabel(r'Effective Reproduction Number $R_{eff}(t)$', fontsize=10, fontweight='bold')
+        axs[1].legend(loc='upper right', fontsize=14)
+        # axs[1].axvline(x=d4['Date'][days4 - 1], color='white', linestyle=':', linewidth=0.1)
+
+# Adjust layout and add space between the two plots
+# plt.subplots_adjust(wspace=0.9)  # Adjust wspace to increase horizontal spacing between graphs
+plt.tight_layout( w_pad=4)
+plt.show()
+
+##################################################################################################################
+
+# Plot for the parameter trajectories
+
+L = [r'$r_{A}$', r'$p_{A}$', r'$\sigma$', r'$\gamma$', r'$\nu_{\beta}$', r'$\phi$']
+# Define number of rows and columns for subplots
+nrows, ncols = 3, 2
+fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(20, 12))  # Set figure size to fit a 3x2 grid
+
+# Flatten the axes array for easy iteration
+axes = axes.flatten()
+
+# Iterate through each key-value pair in matrix_dict_theta and plot using Matplotlib
+for i, (state, matrix) in enumerate(theta_matrix_dict.items()):
+    if i >= nrows * ncols:
+        break  # Ensure we don't exceed the grid dimensions
+
+    # Modify matrix values if needed (specific to state 'a' in the original code)
+    matrix = matrix[:, :days]
+
+    # Plot using the updated `plot_smc` function on the specific subplot axis
+    plot_smc(matrix, ax=axes[i])  # Use `d1` instead of `d2`
+        
+    # Calculate 2.5% and 97.5% credible intervals
+    ci_025 = np.percentile(matrix[:, -1], 2.5)
+    ci_975 = np.percentile(matrix[:, -1], 97.5)
+    median_estimate = np.median(matrix[:, -1])
+    
+    # Set title including the median value and credible intervals
+    axes[i].set_title(f'{L[i]} = {median_estimate:.3f} (95% CrI: [{ci_025:.3f}, {ci_975:.3f}])', 
+                      fontsize=14, fontweight='bold')
+    
+    # Customize labels for x and y axes
+    axes[i].set_xlabel('Date', fontsize=14, fontweight='bold')
+    axes[i].set_ylabel(L[i], fontsize=16, fontweight='bold')
+    # axes[i].axvline(x=d4['Date'][days4 - 1], color='white', linestyle=':', linewidth=0.1)
+
+# Add legend for one subplot (adjust as necessary)
+axes[1].legend(fontsize=14)
+
+# Adjust layout for a clean display and show the figure
+plt.tight_layout()
+plt.show()
+
+
+
