@@ -20,27 +20,32 @@ file_path = r"COVID-19_HPSC_Detailed_Statistics_Profile.csv"
 
 # Read the CSV file into a pandas DataFrame
 df = pd.read_csv(file_path)
-
-# Assuming df is your original DataFrame
-d = df[['Date', 'ConfirmedCovidCases', 'ConfirmedCovidDeaths', 'HospitalisedCovidCases']].fillna(0)
-
-# Create a column of cumulative deaths
-d['Death'] = d['ConfirmedCovidDeaths'].cumsum()
-
 # Restrict the observations to 280 days
 days = 280
-data = d.iloc[:days].copy()  # use iloc to avoid potential slicing issues
+data = df.iloc[:days].copy()
 
+# Ensure the 'Date' column is in datetime format
+data['Date'] = pd.to_datetime(data['Date'])
 
-# Rename the 'ConfirmedCovidCases' column to 'obs' (avoid inplace=True)
-data = data.rename(columns={'ConfirmedCovidCases': 'obs'})
+# Plotting with matplotlib
+fig, ax = plt.subplots(figsize=(10, 6))
 
-# Plot using ggplot
-(ggplot(data) +
- aes(x='Date', y='obs') +
- geom_line()
+# Plot the Confirmed Covid Cases
+ax.plot(data['Date'], data['ConfirmedCovidCases'], label='Confirmed Covid Cases', color='blue')
 
-)
+# Formatting the plot
+ax.set_title("COVID-19 Confirmed Cases Over Time", fontsize=16)
+ax.set_xlabel("Date", fontsize=12)
+ax.set_ylabel("Number of Cases", fontsize=12)
+ax.legend()
+ax.grid(True)
+
+# Rotate the x-axis labels for better visibility
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
 
 ##############################################################################################
 
@@ -129,7 +134,7 @@ def obs_dist_normal_approx_NB(observed_data, model_data, theta, theta_names):
     overdispersion = param.get('phi', 0.1)  # Default value for 'phi' if not provided
     variance = model_est_case * (1 + overdispersion * model_est_case)
     variance = np.maximum(variance, 1)  # Ensure variance is at least 1
-    log_likelihoods = norm.logpdf(observed_data['obs'], loc=model_est_case, scale=np.sqrt(variance))
+    log_likelihoods = norm.logpdf(observed_data['ConfirmedCovidCases'], loc=model_est_case, scale=np.sqrt(variance)) 
     log_likelihoods[np.isnan(log_likelihoods) | np.isinf(log_likelihoods)] = -np.inf
     return log_likelihoods
 
