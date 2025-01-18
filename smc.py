@@ -50,7 +50,7 @@ def Particle_Filter(model, state_names, current_state_particles, theta, theta_na
 
         # Compute log weights for the model if within observed data range
         if t < num_timesteps:
-            weights = observation_distribution(current_data_point, trajectories, theta, theta_names, observation_distribution)
+            weights = observation_distribution(current_data_point, trajectories, theta, theta_names)
 
             # Normalize and resample Particles
             A = np.max(weights)
