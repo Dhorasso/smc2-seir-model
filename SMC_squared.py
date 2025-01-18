@@ -8,13 +8,13 @@ from ssm_prior_draw import*
 from state_process import state_transition
 from smc import Particle_Filter
 from pmmh import PMMH_kernel
-from observation_dist import compute_log_weight
+#from observation_dist import compute_log_weight
 
 
 def SMC_squared(
     model, initial_state_info, initial_theta_info, observed_data, num_state_particles,
-    num_theta_particles, resampling_threshold=0.5, pmmh_moves=5, c=0.5, n_jobs=10,
-    resampling_method='stratified', observation_distribution='normal_approx_NB', tw=None, 
+    num_theta_particles, observation_distribution, resampling_threshold=0.5, 
+    pmmh_moves=5, c=0.5, n_jobs=10, resampling_method='stratified', tw=None, 
     Real_time=False, SMC2_results=None, forecast_days=0, show_progress=True
 ):
     """
@@ -22,18 +22,18 @@ def SMC_squared(
     the state and parameters
 
     Parameters:
-    model: The model to be used for particle filtering.
+    model (func): The model to be used for particle filtering.
     initial_state_info (dict): Information for initializing state particles.
     initial_theta_info (dict): Information for initializing theta particles.
     observed_data (pd.DataFrame): Observed data to fit the model to.
     num_state_particles (int): Number of state particles to use in the filter.
     num_theta_particles (int): Number of theta particles.
+    observation_distribution (func): Type of observation distribution.
     resampling_threshold (float): Threshold for resampling based on effective sample size (ESS).
     pmmh_moves (int): Number of PMMH move in the rejuvenation step.
     c (int): scaling factor for the covariance matrix in the PMMH kernel.
     n_jobs (int): Number of processor in the PMMH parallel computing
     resampling_method (str): Method for resampling ('stratified', etc.).
-    observation_distribution (str): Type of observation distribution ('normal_approx_NB', etc.).
     tw (int): Window size for the (O-SMC^2).
     SMC2_results (dict) : Previous SMC^2 results for previous days that are considered as prior here
     Real_time (bool) : Whether to use SMC^2 time base on revious SMC^2 results
@@ -110,7 +110,7 @@ def SMC_squared(
             model_points = trajectories.to_numpy()
 
             # Compute log weights for the model
-            weights = compute_log_weight(current_data_point, trajectories, theta, theta_names, observation_distribution)
+            weights = observation_distribution(current_data_point, trajectories, theta, theta_names, observation_distribution)
 
             # Normalize and resample weights
             A = np.max(weights)
