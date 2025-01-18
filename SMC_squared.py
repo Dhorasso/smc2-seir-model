@@ -110,7 +110,7 @@ def SMC_squared(
             model_points = trajectories.to_numpy()
 
             # Compute log weights for the model
-            weights = observation_distribution(current_data_point, trajectories, theta, theta_names, observation_distribution)
+            weights = observation_distribution(current_data_point, trajectories, theta, theta_names)
 
             # Normalize and resample weights
             A = np.max(weights)
