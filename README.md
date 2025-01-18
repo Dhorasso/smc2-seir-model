@@ -13,7 +13,10 @@ To install and set up the environment for running this model, follow these steps
     ```bash
     git clone https://github.com/Dhorasso/smc2_seir.git
     ```
-
+2. Install the required dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Model Inputs
 
