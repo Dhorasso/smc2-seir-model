@@ -25,10 +25,8 @@ def resampling_style(weights, name_method):
 
     References
     ----------
-        Copyright 2015 Roger R Labbe Jr.
-        FilterPy library.
-        http://github.com/rlabbe/filterpy
-    
+       Roger R Labbe Jr (2015).FilterPy library.http://github.com/rlabbe/filterpy
+       
     """
 
 
