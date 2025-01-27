@@ -1,12 +1,10 @@
-
 ###############################################################################################################
-#  This file contains the code for different type of stocastic SEIR models. This can be extend by the user
+#  This file contains the code for different types of stochastic SEIR models. This can be extended by the user
 #################################################################################################################
-
 
 import pandas as pd
 import numpy as np
-
+from numpy.random import binomial, normal 
 
 ######################################################################################################
 #####  SEAIR model with time-varying Beta as a geometric random walk #################################
@@ -21,7 +19,7 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
         A 2D array of compartments with shape (num_particles, num_compartments). 
         Columns represent the following compartments:
         [S (Susceptible), E (Exposed), A (Asymptomatic), I (Infected), R (Recovered), 
-         NI (New Infections), B (Transmission Rate)].
+         NI (new infected), B (Transmission Rate)].
     theta : np.ndarray
         A 1D array of parameter values, one per particle. The parameters must match the order in `theta_names`.
     theta_names : list of str
@@ -43,10 +41,10 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
 
     # Unpack parameters into a dictionary for easy access
     param = dict(zip(theta_names, theta))
-    pa = param.get('pa', 0.5)  # Default value for `pa` if not specified
-    ra = param.get('ra', 0.5)  # Default value for `ra` if not specified
-    sigma = param['sigma']
-    gamma = param['gamma']
+    pa = param.get('pa', 0.5)  # Default value for fraction asymptomatic if not specified
+    ra = param.get('ra', 0.5)  # Default value for  reduction transmission asymptomatic if not specified
+    sigma = param['sigma']     # latency rate
+    gamma = param['gamma']     # recovery rate   
     nu_beta = param.get('nu_beta', 0.1)  # Default value for `nu_beta` if not specified
 
     # Transition probabilities (vectorized)
@@ -56,12 +54,12 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
     P_IR = P_AR                                      # Infected → Recovered
 
     # Simulate transitions using binomial draws
-    Y_SE = np.random.binomial(S.astype(int), P_SE)   # S → E
-    Y_EAI = np.random.binomial(E.astype(int), P_EAI)  # E → A/I
-    Y_EA = np.random.binomial(Y_EAI, pa)              # E → A
-    Y_EI = Y_EAI - Y_EA                               # E → I
-    Y_AR = np.random.binomial(A.astype(int), P_AR)    # A → R
-    Y_IR = np.random.binomial(I.astype(int), P_IR)    # I → R
+    Y_SE = binomial(S.astype(int), P_SE)   # S → E
+    Y_EAI = binomial(E.astype(int), P_EAI)  # E → A/I
+    Y_EA = binomial(Y_EAI, pa)              # E → A
+    Y_EI = Y_EAI - Y_EA                     # E → I
+    Y_AR = binomial(A.astype(int), P_AR)    # A → R
+    Y_IR = binomial(I.astype(int), P_IR)    # I → R
 
     # Update compartments
     S_next = S - Y_SE
@@ -71,9 +69,9 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
     R_next = R + Y_AR + Y_IR
     
     # Update transmission rate with stochastic volatility
-    B_next = B * np.exp(nu_beta * np.random.normal(0, 1, size=B.shape) * dt)
+    B_next = B * np.exp(nu_beta * normal(0, 1, size=B.shape) * dt)
 
-    # Update new infections
+    # Update new infected
     NI_next = Y_EI
 
     # Combine updated compartments into a 2D array
@@ -82,20 +80,19 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
     # Ensure all compartments remain non-negative
     return np.maximum(y_next, 0)
 
-
 ######################################################################################################
 #####  SEIR model with time-varying Beta as a geometric random walk #################################
 
 def stochastic_seir_model(y, theta, theta_names, dt=1):
     """
-     Vectorized discrete-time stochastic SEIR compartmental model.
+    Vectorized discrete-time stochastic SEIR compartmental model.
     Parameters:
     ----------
     y : np.ndarray
         A 2D array of compartments with shape (num_particles, num_compartments). 
         Columns represent the following compartments:
         [S (Susceptible), E (Exposed), I (Infected), R (Recovered), 
-         NI (New Infections), B (Transmission Rate)].
+         NI (new infected), B (Transmission Rate)].
     theta : np.ndarray
         A 1D array of parameter values, one per particle. The parameters must match the order in `theta_names`.
     theta_names : list of str
@@ -117,8 +114,8 @@ def stochastic_seir_model(y, theta, theta_names, dt=1):
 
     # Unpack parameters into a dictionary for easy access
     param = dict(zip(theta_names, theta))
-    sigma = param['sigma']
-    gamma = param['gamma']
+    sigma = param['sigma']     # latency rate
+    gamma = param['gamma']     # recovery rate   
     nu_beta = param.get('nu_beta', 0.1)  # Default value for `nu_beta` if not specified
 
     # Transition probabilities (vectorized)
@@ -127,9 +124,9 @@ def stochastic_seir_model(y, theta, theta_names, dt=1):
     P_IR = 1 - np.exp(-gamma * dt)                  # Infected → Recovered
 
     # Simulate transitions using binomial draws
-    Y_SE = np.random.binomial(S.astype(int), P_SE)   # S → E
-    Y_EI = np.random.binomial(E.astype(int), P_EI)  # E → I
-    Y_IR = np.random.binomial(I.astype(int), P_IR)    # I → R
+    Y_SE = binomial(S.astype(int), P_SE)   # S → E
+    Y_EI = binomial(E.astype(int), P_EI)  # E → I
+    Y_IR = binomial(I.astype(int), P_IR)    # I → R
 
     # Update compartments
     S_next = S - Y_SE
@@ -137,10 +134,10 @@ def stochastic_seir_model(y, theta, theta_names, dt=1):
     I_next = I + Y_EI - Y_IR
     R_next = R + Y_IR
     
-    # Update transmission rate with stochastic volatility 
-    B_next = B * np.exp(nu_beta * np.random.normal(0, 1, size=B.shape) * dt)
+    # Update transmission rate with stochastic volatility
+    B_next = B * np.exp(nu_beta * normal(0, 1, size=B.shape) * dt)
 
-    # Update new infections
+    # Update new infected
     NI_next = Y_EI
 
     # Combine updated compartments into a 2D array
@@ -149,20 +146,19 @@ def stochastic_seir_model(y, theta, theta_names, dt=1):
     # Ensure all compartments remain non-negative
     return np.maximum(y_next, 0)
 
-
 ######################################################################################################
 #####  SEIR model with constant beta ######################################################
 
 def stochastic_seir_model_const_beta(y, theta, theta_names, dt=1):
     """
-     Vectorized discrete-time stochastic SEIR compartmental model.
+    Vectorized discrete-time stochastic SEIR compartmental model.
     Parameters:
     ----------
     y : np.ndarray
         A 2D array of compartments with shape (num_particles, num_compartments). 
         Columns represent the following compartments:
         [S (Susceptible), E (Exposed), I (Infected), R (Recovered), 
-         NI (New Infections)].
+         NI (new infected)].
     theta : np.ndarray
         A 1D array of parameter values, one per particle. The parameters must match the order in `theta_names`.
     theta_names : list of str
@@ -177,17 +173,16 @@ def stochastic_seir_model_const_beta(y, theta, theta_names, dt=1):
     """
 
     # Unpack compartments (columns of y)
-    S, E, I, R, NI, B = y.T
+    S, E, I, R, NI = y.T
 
     # Calculate total population for each particle
     N = S + E + I + R
 
     # Unpack parameters into a dictionary for easy access
     param = dict(zip(theta_names, theta))
-    beta = param ['beta']
-    sigma = param['sigma']
-    gamma = param['gamma']
-    nu_beta = param.get('nu_beta', 0.1)  # Default value for `nu_beta` if not specified
+    beta = param['beta']       # transmission rate   
+    sigma = param['sigma']     # latency rate
+    gamma = param['gamma']     # recovery rate   
 
     # Transition probabilities (vectorized)
     P_SE = 1 - np.exp(-beta * I / N * dt)             # Susceptible → Exposed
@@ -195,18 +190,17 @@ def stochastic_seir_model_const_beta(y, theta, theta_names, dt=1):
     P_IR = 1 - np.exp(-gamma * dt)                  # Infected → Recovered
 
     # Simulate transitions using binomial draws
-    Y_SE = np.random.binomial(S.astype(int), P_SE)   # S → E
-    Y_EI = np.random.binomial(E.astype(int), P_EI)  # E → I
-    Y_IR = np.random.binomial(I.astype(int), P_IR)    # I → R
+    Y_SE = binomial(S.astype(int), P_SE)   # S → E
+    Y_EI = binomial(E.astype(int), P_EI)  # E → I
+    Y_IR = binomial(I.astype(int), P_IR)    # I → R
 
     # Update compartments
     S_next = S - Y_SE
     E_next = E + Y_SE - Y_EI
     I_next = I + Y_EI - Y_IR
     R_next = R + Y_IR
-    
 
-    # Update new infections
+    # Update new infected
     NI_next = Y_EI
 
     # Combine updated compartments into a 2D array
@@ -214,5 +208,3 @@ def stochastic_seir_model_const_beta(y, theta, theta_names, dt=1):
     
     # Ensure all compartments remain non-negative
     return np.maximum(y_next, 0)
-
-

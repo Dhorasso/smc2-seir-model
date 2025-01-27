@@ -1,6 +1,8 @@
 
 ######################################################################################################
 #####  Fonction to propagate the state forward  ######################################################
+import numpy as np
+import pandas as pd
 
 def state_transition(model, theta, initial_state, state_names, theta_names, t_start, t_end, dt=1):
     """
