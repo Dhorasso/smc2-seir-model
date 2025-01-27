@@ -68,6 +68,6 @@ The function returns a dictionary containing:
 ## Example Usage
 
 
-An example of using the `SMC_squared` function with an SEIR model for the Irish COVID-19 data is provided in the file [test_covid.py](https://github.com/Dhorasso/smc2_seir/blob/main/test_covid.py).
+Examples of using the `SMC_squared` function with an SEIR model to recreate the analyses conducted in the paper is provided in the file [Test_smc2](https://github.com/Dhorasso/smc2_seir/blob/main/Test_smc2).
 
 
