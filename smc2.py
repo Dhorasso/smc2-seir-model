@@ -52,24 +52,20 @@ def SMC_squared(
         - 'Nx': Number of particles over time.
     """
     num_timesteps = len(observed_data)
-    
     # Initialize arrays to store results
     Z_arr = np.zeros((num_theta_particles, num_timesteps))
     likelihood_increment = np.ones(num_theta_particles)
     log_model_evid = np.zeros(num_timesteps)
-
     # Initialize theta and state particles
     theta_weights = np.ones((num_theta_particles, num_timesteps )) / num_theta_particles
     particle_weights = np.ones((num_theta_particles, num_state_particles)) / num_state_particles
     ESS_theta = np.zeros(num_timesteps)
     Nx = np.zeros(num_timesteps)
     acceptance_rate = np.zeros(num_timesteps)
-
     # Initialize theta particles
     initialization_theta = initial_theta(initial_theta_info, num_theta_particles)
     current_theta_particles = initialization_theta['currentThetaParticles']
     theta_names = initialization_theta['thetaName']
-
     # Initialize state particles
     initialization_state = initial_state(initial_state_info, num_theta_particles, num_state_particles)
     current_state_particles_all = initialization_state['currentStateParticles']
@@ -79,81 +75,63 @@ def SMC_squared(
     if Real_time:
         current_theta_particles = SMC2_results['current_theta_particles']
         current_state_particles_all = SMC2_results['current_state_particles_all']
-
     state_history[0] = current_state_particles_all
-
     # Max number of theta particles for efficiency
     Nx_max = 2000
     num_theta_particles = min(num_theta_particles, Nx_max)
-
     if tw is None:
         tw = num_timesteps
-
     # Initialize trajectory storage for theta
     traj_theta = [{key: [] for key in ['time'] + theta_names} for _ in range(num_theta_particles)]
-
     # Initialize progress bar if required
     if show_progress:
         progress_bar = tqdm(total=num_timesteps, desc="SMC^2 Progress")
-
     # Main loop over time steps
     for t in range(num_timesteps):
         t_start, t_end = (0, 0) if t == 0 else (t - 1, t)
         current_data_point = observed_data.iloc[t]
-
         # Function to process each theta particle
         def process_particle_theta(theta_idx):
             trans_theta = current_theta_particles[theta_idx]
             theta = untransform_theta(trans_theta, initial_theta_info)
             state_particles = current_state_particles_all[theta_idx]
-        
             # Solve model for state particles and theta
             trajectories = state_transition(model, theta, state_particles, state_names, theta_names, t_start, t_end)
             model_points = trajectories.to_numpy()
-
             # Compute log weights for the model
             weights = observation_distribution(current_data_point, trajectories, theta, theta_names)
-
             # Normalize and resample weights
             A = np.max(weights)
             weights_mod = np.ones_like(weights) if A < -1e2 else np.exp(weights - A)
             normalized_weights = weights_mod / np.sum(weights_mod)
             resampled_indices = resampling_style(normalized_weights, resampling_method)
             current_state_particles = model_points[resampled_indices]
-
             # Likelihood increment for this particle
             likelihood_increment_theta = np.mean(np.exp(weights))
             likelihood_increment_theta = max(likelihood_increment_theta, 1e-12)
-        
             return {
                 'state_particles': current_state_particles,
                 'likelihood': likelihood_increment_theta,
                 'theta': trans_theta,
             }
-
         # Process all theta particles in parallel
         particles_update_theta = Parallel(n_jobs=n_jobs)(delayed(process_particle_theta)(m) for m in range(num_theta_particles))
-
         # Update theta and state particles
         current_state_particles_all = np.array([p['state_particles'] for p in particles_update_theta])
         current_theta_particles = np.array([p['theta'] for p in particles_update_theta])
         likelihood_increment = np.array([p['likelihood'] for p in particles_update_theta])
         state_history[t] = current_state_particles_all  
-
         # Store the incremental log  likelihood and log weights
         Z_arr[:, t] = np.log(likelihood_increment)
         Z_w = Z_arr[:, max(0, t - tw):t + 1] # restrist the interest window size
-
         if t > 0:
             theta_weights[:, t] = theta_weights[:, t-1] * likelihood_increment
             log_model_evid[t] = log_model_evid[t-1] + np.log(Evidence(theta_weights[:, t-1], likelihood_increment))
         else:
             theta_weights[:, t] = theta_weights[:, t] * likelihood_increment
             log_model_evid[t] = np.log(Evidence(theta_weights[:, t], likelihood_increment))
-
         theta_weights[:, t] /= np.sum(theta_weights[:, t])
         ESS_theta[t] = 1 / (np.sum(theta_weights[:, t] ** 2))
-        
         # Resampling-move step (Rejuvenation)
         if ESS_theta[t] < resampling_threshold * num_theta_particles:
             # Resampling and  Reset the weights 
@@ -163,11 +141,10 @@ def SMC_squared(
             theta_mean = np.average(current_theta_particles, axis=0, weights=theta_weights[:, t])
             theta_covariance = np.cov(current_theta_particles.T, ddof=0, aweights=theta_weights[:, t])
             theta_weights[:, t] = np.ones(num_theta_particles) / num_theta_particles
-
+            
             current_theta_particles = current_theta_particles[resampled_indices_theta]
             current_state_particles_all = current_state_particles_all[resampled_indices_theta]
             state_history[t] = current_state_particles_all
-
 
             # Run the PMCMC kernel 
             new_particles = Parallel(n_jobs=10)(delayed(PMMH_kernel)(
@@ -175,7 +152,6 @@ def SMC_squared(
                 observed_data.iloc[max(0, t - tw):t + 1], state_names, initial_theta_info, 
                 num_state_particles, theta_mean, theta_covariance, observation_distribution,
                 resampling_method, m, t, tw, pmmh_moves, c) for m in range(num_theta_particles))
-
             # Update particles and states
             current_theta_particles = np.array([new['theta'] for new in new_particles])
             current_state_particles_all = np.array([new['state'] for new in new_particles])
@@ -183,9 +159,7 @@ def SMC_squared(
             state_history[t] = current_state_particles_all
             Z_w = np.array([new['Z_w_m'] for new in new_particles])
           
-        # Z_arr[:, max(0, t - tw):t + 1] = Z_w # Update the window size of incremental log likelihood
-        
-            
+        # Z_arr[:, max(0, t - tw):t + 1] = Z_w # Update the window size of incremental log likelihood            
 
         # store the trajectory for each theta particle
         traj_theta = Parallel(n_jobs=n_jobs)(
@@ -196,7 +170,6 @@ def SMC_squared(
             ))(traj, j) 
             for j, traj in enumerate(traj_theta)
         )
-
         # Final particle filter step for the last time step
         if t == num_timesteps - 1:
             if Real_time:
@@ -211,17 +184,13 @@ def SMC_squared(
                                           resampling_method, forecast_days=forecast_days, add=1, end=True, n_jobs=n_jobs)
             traj_state = PF_results['traj_state']
             current_state_particles =PF_results['particle_state']
-
         # Update progress bar
         if show_progress:
             progress_bar.update(1)
-
         # Perform garbage collection to free up memory
         gc.collect()
 
-   
     non_zero_mask = acceptance_rate != 0
-
     filtered_indices = np.arange(num_timesteps)[non_zero_mask]
     filtered_acc = acceptance_rate[non_zero_mask]
     # Close progress bar if it was shown
