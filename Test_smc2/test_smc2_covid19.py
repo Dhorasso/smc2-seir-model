@@ -223,7 +223,7 @@ gamma = np.nanmedian(theta_matrix_dict['gamma'][:, -1])  # Median recovery rate
 pa = np.nanmedian(theta_matrix_dict['pa'][:, -1])        # Fraction of infections that are asymptomatic
 ra = np.nanmedian(theta_matrix_dict['ra'][:, -1])        # Relative recovery rate for asymptomatic cases
 
-# Calculate the effective reproduction number Rt and add it to the satate dict
+# Compute the effective reproduction number Rt and add it to the satate dict
 state_matrix_dict['Rt'] = (
     state_matrix_dict['B'] * 
     ((1 - pa) * 1 / gamma + pa * ra * 1 / gamma) * 
