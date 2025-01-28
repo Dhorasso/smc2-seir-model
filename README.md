@@ -53,7 +53,7 @@ The `SMC_squared` function requires the following inputs:
 ## Model Outputs
 
 The function returns a dictionary containing:
-- **`margLogLike`**: Marginal log-likelihood of the observed data given the model.
+- **`margLogLike`**: Marginal log-likelihood of the model given the observations
 - **`trajState`**: State variable trajectories over time.
 - **`trajtheta`**: Parameter trajectories over time.
 - **`ESS`**: Effective sample size over time.
