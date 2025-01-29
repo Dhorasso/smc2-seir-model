@@ -72,7 +72,7 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
     y : np.ndarray
         A 2D array of compartments with shape (num_particles, num_compartments). 
         Columns represent the following compartments:
-        [S (Susceptible), E (Exposed), A (Asymptomatic), I (Infected), R (Recovered), 
+        [S (Susceptible), E (Exposed), A (Asymptomatic), I (Infected), R (Removed), 
          NI (New Infected), B (Transmission Rate)].
     theta : np.ndarray
         A 1D array of parameter values, one per particle. The parameters must match the order in `theta_names`.
@@ -104,8 +104,8 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
     # Transition probabilities (vectorized)
     P_SE = 1 - np.exp(-B * (I + ra * A) / N * dt)  # Susceptible → Exposed
     P_EAI = 1 - np.exp(-sigma * dt)                 # Exposed → Asymptomatic/Infected
-    P_AR = 1 - np.exp(-gamma * dt)                  # Asymptomatic → Recovered
-    P_IR = P_AR                                      # Infected → Recovered
+    P_AR = 1 - np.exp(-gamma * dt)                  # Asymptomatic → Removed
+    P_IR = P_AR                                      # Infected → Removed
 
     # Simulate transitions using binomial draws
     Y_SE = np.random.binomial(S.astype(int), P_SE)   # S → E
