@@ -114,7 +114,7 @@ def stochastic_seir_model_const_beta(y, theta, theta_names, dt=1):
     y : np.ndarray
         A 2D array of compartments with shape (num_particles, num_compartments). 
         Columns represent the following compartments:
-        [S (Susceptible), E (Exposed), I (Infected), R (Recovered), 
+        [S (Susceptible), E (Exposed), I (Infected), R (Removed), 
          NI (new infected)].
     theta : np.ndarray
         A 1D array of parameter values, one per particle. The parameters must match the order in `theta_names`.
@@ -144,7 +144,7 @@ def stochastic_seir_model_const_beta(y, theta, theta_names, dt=1):
     # Transition probabilities (vectorized)
     P_SE = 1 - np.exp(-beta * I / N * dt)             # Susceptible → Exposed
     P_EI = 1 - np.exp(-sigma * dt)                 # Exposed → Infected
-    P_IR = 1 - np.exp(-gamma * dt)                  # Infected → Recovered
+    P_IR = 1 - np.exp(-gamma * dt)                  # Infected → Removed
 
     # Simulate transitions using binomial draws
     Y_SE = binomial(S.astype(int), P_SE)   # S → E
