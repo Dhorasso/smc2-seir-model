@@ -107,8 +107,7 @@ def SMC_squared(
             resampled_indices = resampling_style(normalized_weights, resampling_method)
             current_state_particles = model_points[resampled_indices]
             # Likelihood increment for this particle
-            likelihood_increment_theta = np.mean(np.exp(weights))
-            likelihood_increment_theta = max(likelihood_increment_theta, 1e-12)
+            likelihood_increment_theta = max(np.mean(np.exp(weights)), 1e-12)
             return {
                 'state_particles': current_state_particles,
                 'likelihood': likelihood_increment_theta,
