@@ -20,8 +20,8 @@ def PMMH_kernel(model, Z_w, current_theta_particles, state_history, theta_names,
     Perform Particle Marginal Metropolis-Hastings (PMMH) for a given model.
 
     Parameters:
-    model: The model to be used.
-    Z_w (float): Current window of incremental log likelihood [t-tw, t] for each index m.
+    model (func): The model to be used.
+    Z_w (2D arr): Current window of incremental log likelihood [t-tw, t] for each index m.
     current_theta_particles (ndarray): Current particles for the theta parameters.
     state_history (list): The history of the states over time.
     theta_names (list): Names of the theta parameters.
