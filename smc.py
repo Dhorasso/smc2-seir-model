@@ -18,7 +18,7 @@ def Particle_Filter(model, state_names, current_state_particles, theta, theta_na
     Perform Particle Filter to estimate the state and compute the marginal log-likelihood.
 
     Parameters:
-    - model: The model function.
+    - model (func): The model function.
     - state_names (list): Names of the state variables.
     - current_state_particles (ndarray): The initial state particles.
     - theta (ndarray): Model parameters.
