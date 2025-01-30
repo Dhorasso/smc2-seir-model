@@ -34,7 +34,7 @@ def SMC_squared(
     pmmh_moves (int): Number of PMMH move in the rejuvenation step.
     c (int): scaling factor for the covariance matrix in the PMMH kernel.
     n_jobs (int): Number of processor in the PMMH parallel computing
-    resampling_method (str): Method for resampling ('stratified', etc.).
+    resampling_method (str): Method for resampling ('stratified', 'systematic', 'residual', 'multinomial').
     tw (int): Window size for the (O-SMC^2).
     SMC2_results (dict) : Previous SMC^2 results for previous days that are considered as prior here
     Real_time (bool) : Whether to use SMC^2 time base on revious SMC^2 results
