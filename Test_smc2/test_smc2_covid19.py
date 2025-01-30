@@ -165,22 +165,22 @@ S_0_max = N_pop - A_0_min - E_0
 
 # Initial state information
 state_info = {
-    'S': {'prior': [S_0_min, S_0_max, 0, 0, 'uniform']},
-    'E': {'prior': [E_0, E_0, 0, 0, 'uniform']},
-    'A': {'prior': [A_0_min, A_0_max, 0, 0, 'uniform']},
-    'I': {'prior': [0, 0, 0, 0, 'uniform']},
-    'R': {'prior': [0, 0, 0, 0, 'uniform']},
-    'NI': {'prior': [0, 0, 0, 0, 'uniform']}, # New Infected
-    'B': {'prior': [0.6, 0.8, 0, 0, 'uniform']}
+    'S': {'prior': [S_0_min, S_0_max, 0, 0, 'uniform']}, # Susceptibles
+    'E': {'prior': [E_0, E_0, 0, 0, 'uniform']},         # Exposed
+    'A': {'prior': [A_0_min, A_0_max, 0, 0, 'uniform']}, # Asymptomatic
+    'I': {'prior': [0, 0, 0, 0, 'uniform']},             # Symptomatics
+    'R': {'prior': [0, 0, 0, 0, 'uniform']},             # Removed
+    'NI': {'prior': [0, 0, 0, 0, 'uniform']},            # New Infected
+    'B': {'prior': [0.6, 0.8, 0, 0, 'uniform']}          # Transmission rate
 }
 
 # Initial parameter information
 theta_info = {
-    'ra': {'prior': [0.1, 0.5, 0, 0, 'uniform', 'logit']},
-    'pa': {'prior': [0.3, 1, 0, 0, 'uniform', 'logit']},
-    'sigma': {'prior': [1/5, 1/3, 1/4, 0.1, 'truncnorm', 'log']},
-    'gamma': {'prior': [1/7.5, 1/4.5, 1/6, 0.2, 'truncnorm', 'log']},
-    'nu_beta': {'prior': [0.05, 0.15, 0.1, 0.05, 'uniform', 'log']},
+    'ra': {'prior': [0.1, 0.5, 0, 0, 'uniform', 'logit']},  # reduction transmission aysmptomatic
+    'pa': {'prior': [0.3, 1, 0, 0, 'uniform', 'logit']},    # proportion asymptomatic
+    'sigma': {'prior': [1/5, 1/3, 1/4, 0.1, 'truncnorm', 'log']},  # latency rate
+    'gamma': {'prior': [1/7.5, 1/4.5, 1/6, 0.2, 'truncnorm', 'log']}, # removal rate
+    'nu_beta': {'prior': [0.05, 0.15, 0.1, 0.05, 'uniform', 'log']},   # standard deviation RW process
     'phi': {'prior': [0.01, 0.2, 0, 0, 'uniform', 'log']} # Overdisperssion parameter (use for 'normal'(here is the std.),
                                                           # 'normal_approx_NB', or 'negative_binomial observation_distribution)
 }
