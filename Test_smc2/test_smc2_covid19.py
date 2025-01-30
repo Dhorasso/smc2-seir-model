@@ -178,9 +178,9 @@ state_info = {
 theta_info = {
     'ra': {'prior': [0.1, 0.5, 0, 0, 'uniform', 'logit']},  # reduction transmission aysmptomatic
     'pa': {'prior': [0.3, 1, 0, 0, 'uniform', 'logit']},    # proportion asymptomatic
-    'sigma': {'prior': [1/5, 1/3, 1/4, 0.1, 'truncnorm', 'log']},  # latency rate
-    'gamma': {'prior': [1/7.5, 1/4.5, 1/6, 0.2, 'truncnorm', 'log']}, # removal rate
-    'nu_beta': {'prior': [0.05, 0.15, 0.1, 0.05, 'uniform', 'log']},   # standard deviation RW process
+    'sigma': {'prior': [1/5, 1/3, 1/4, 0.1, 'truncnorm', 'log']},  # latency rate (inverse of incubation period)
+    'gamma': {'prior': [1/7.5, 1/4.5, 1/6, 0.2, 'truncnorm', 'log']}, # removal rate (inverse of infectious period)
+    'nu_beta': {'prior': [0.05, 0.15, 0.1, 0.05, 'uniform', 'log']},   # standard deviation RW process 
     'phi': {'prior': [0.01, 0.2, 0, 0, 'uniform', 'log']} # Overdisperssion parameter (use for 'normal'(here is the std.),
                                                           # 'normal_approx_NB', or 'negative_binomial observation_distribution)
 }
