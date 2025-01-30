@@ -199,7 +199,7 @@ def SMC_squared(
     # Return results
     return {
         'log_modelevidence': log_model_evid,
-        'margiLogLike': log_model_evid[-1],
+        'margLogLike': log_model_evid[-1],
         'trajState': traj_state,
         'trajtheta': traj_theta,
         'current_theta_particles': current_theta_particles,
