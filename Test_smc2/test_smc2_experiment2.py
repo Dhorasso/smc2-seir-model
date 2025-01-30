@@ -199,22 +199,23 @@ def obs_dist_poisson(observed_data, model_data, theta, theta_names):
 
 np.random.seed(123) # Set a seed for reproducibility
 
-# # ##### # setting state and parameter
+# Setting state  information
 state_info = {
-    'S': {'prior': [200000-5, 200000, 0,0, 'uniform', 'none']}, # it doesn' maqtter if you put 'none' or not
-    'E': {'prior': [0, 0, 0,0, 'uniform','noene']},
-    'I': {'prior': [0, 5, 0,0, 'uniform','none']},
-    'R': {'prior': [0, 0, 0,0, 'uniform','none']},
-     'NI': {'prior': [0, 0, 0,0, 'uniform','none']},
-     'B': {'prior': [0.2, 0.5, 0,0, 'uniform','none']}
+    'S': {'prior': [200000-5, 200000, 0,0, 'uniform', 'none']},  # Susceptibles 
+    'E': {'prior': [0, 0, 0,0, 'uniform','none']},               # Exposed
+    'I': {'prior': [0, 5, 0,0, 'uniform','none']},               # Symptomatic Infected
+    'R': {'prior': [0, 0, 0,0, 'uniform','none']},               # Removed (Recovered or Deceased)
+    'NI': {'prior': [0, 0, 0,0, 'uniform','none']},              # Newly Infected
+    'B': {'prior': [0.2, 0.5, 0,0, 'uniform','none']}           # Transmission rate (Beta)
 }
 
-
+# Initial parameter information
 theta_info = {
-    'sigma': {'prior': [0.3, 0.6,0,0, 'uniform','log']},
-    'gamma':{'prior': [1e-5, 1, 0.14, 0.01,'truncnorm','log']},
-      'nu_beta': {'prior': [0.05, 0.15,0.1,0.05, 'truncnorm','log']},   
+    'sigma': {'prior': [0.3, 0.6,0,0, 'uniform','log']},         # Latency rate (inverse of incubation period)
+    'gamma': {'prior': [1e-5, 1, 0.14, 0.01,'truncnorm','log']}, # Removal rate (inverse of infectious period)
+    'nu_beta': {'prior': [0.05, 0.15,0.1,0.05, 'truncnorm','log']} # Standard deviation of RW process 
 }
+
 
 smc2_results = SMC_squared(
     model=stochastic_seir_model,
