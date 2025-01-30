@@ -96,7 +96,7 @@ axes[0].set_xlabel('Time')
 axes[0].set_ylabel('Population')
 axes[0].legend()
 axes[0].grid(True)
-axes[0].set_title('New Infections Over Time')
+axes[0].set_title('Simulated incidence data')
 
 # Second subplot: Plot transmission rate
 axes[1].plot(simulated_data['time'].index, simulated_data['B'], label='Transmission Rate', color='orange')
