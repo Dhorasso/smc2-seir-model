@@ -200,8 +200,8 @@ state_info = {
 # Initial parameter information
 theta_info = {
     'beta': {'prior': [1e-5, 1,0,0, 'uniform','log']},   # Transmission rate
-    'sigma': {'prior': [1e-5, 1,0,0, 'uniform','log']},  # Latency rate
-    'gamma': {'prior': [1e-5, 1,0,0, 'uniform','log']},  # Removal rate
+    'sigma': {'prior': [1e-5, 1,0,0, 'uniform','log']},  # Latency rate (inverse of incubation period)
+    'gamma': {'prior': [1e-5, 1,0,0, 'uniform','log']},  # Removal rate (inverse of infectious period)
 }
 
 
