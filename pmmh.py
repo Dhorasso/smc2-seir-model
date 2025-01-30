@@ -15,7 +15,7 @@ from smc import Particle_Filter
 def PMMH_kernel(model, Z_w, current_theta_particles, state_history, theta_names,
                observed_data, state_names, initial_theta_info, num_state_particles,
                theta_mean_current, theta_covariance_current, observation_distribution,
-                resampling_method, m, t, tw, pmmh_moves, c, n_jobs):
+                resampling_method, m, t, tw, pmmh_moves, c, n_jobs=10):
     """
     Perform Particle Marginal Metropolis-Hastings (PMMH) for a given model.
 
