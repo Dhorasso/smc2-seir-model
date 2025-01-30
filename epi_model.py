@@ -1,5 +1,5 @@
 ###############################################################################################################
-#  This file contains the code for different types of stochastic SEIR models. This can be extended by the user
+#  This script contains the code for different types of stochastic SEIR models. This can be extended by the user
 #################################################################################################################
 
 import pandas as pd
