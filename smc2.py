@@ -44,7 +44,7 @@ def SMC_squared(
     Returns:
     dict: A dictionary with the following keys:
         - 'log_modelevidence': Evolution of the log model evidence over the time.
-        - 'margiLogLike': Marginal log likelihood for the data y_{1:T}
+        - 'margLogLike': Marginal log likelihood for the data y_{1:T}
         - 'trajState': State trajectories.
         - 'trajtheta': Theta trajectories.
         - 'ESS': Effective sample size over time.
