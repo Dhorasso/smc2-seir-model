@@ -188,20 +188,22 @@ def obs_dist_poisson(observed_data, model_data, theta, theta_names):
 np.random.seed(123) # Set a seed for reproducibility
 
 # # ##### # setting state and parameter
+# Initial state information
 state_info = {
-    'S': {'prior': [6000-5, 6000, 0,0, 'uniform']},  
-    'E': {'prior': [0, 0, 0,0, 'uniform']},
-    'I': {'prior': [0,5, 0,0, 'uniform']},
-    'R': {'prior': [0, 0, 0,0, 'uniform']},
-     'NI': {'prior': [0, 0, 0,0, 'uniform']},
+    'S': {'prior': [6000-5, 6000, 0,0, 'uniform']},  # Susceptibles
+    'E': {'prior': [0, 0, 0,0, 'uniform']},          # Exposed
+    'I': {'prior': [0,5, 0,0, 'uniform']},          # Infected
+    'R': {'prior': [0, 0, 0,0, 'uniform']},         # Removed
+    'NI': {'prior': [0, 0, 0,0, 'uniform']},        # New Infected
 }
 
+# Initial parameter information
 theta_info = {
-    'beta': {'prior': [1e-5, 1,0,0, 'uniform','log']},
-    'sigma': {'prior': [1e-5, 1,0,0, 'uniform','log']},
-    'gamma':{'prior': [1e-5, 1,0,0, 'uniform','log']},
-
+    'beta': {'prior': [1e-5, 1,0,0, 'uniform','log']},   # Transmission rate
+    'sigma': {'prior': [1e-5, 1,0,0, 'uniform','log']},  # Latency rate
+    'gamma': {'prior': [1e-5, 1,0,0, 'uniform','log']},  # Removal rate
 }
+
 
 
 
