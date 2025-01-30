@@ -150,7 +150,7 @@ def SMC_squared(
                 model, Z_w, current_theta_particles, state_history, theta_names,
                 observed_data.iloc[max(0, t - tw):t + 1], state_names, initial_theta_info, 
                 num_state_particles, theta_mean, theta_covariance, observation_distribution,
-                resampling_method, m, t, tw, pmmh_moves, c) for m in range(num_theta_particles))
+                resampling_method, m, t, tw, pmmh_moves, c, n_jobs) for m in range(num_theta_particles))
             # Update particles and states
             current_theta_particles = np.array([new['theta'] for new in new_particles])
             current_state_particles_all = np.array([new['state'] for new in new_particles])
