@@ -15,7 +15,7 @@ from smc import Particle_Filter
 def PMMH_kernel(model, Z_w, current_theta_particles, state_history, theta_names,
                observed_data, state_names, initial_theta_info, num_state_particles,
                theta_mean_current, theta_covariance_current, observation_distribution,
-                resampling_method, m, t, tw, pmmh_moves, c):
+                resampling_method, m, t, tw, pmmh_moves, c, n_jobs):
     """
     Perform Particle Marginal Metropolis-Hastings (PMMH) for a given model.
 
@@ -38,7 +38,7 @@ def PMMH_kernel(model, Z_w, current_theta_particles, state_history, theta_names,
     tw (int): Window size for the (O-SMC^2).
     pmmh_moves (int): Number of PMMH move in the rejuvenation step.
     c (int): scaling factor for the covariance matrix in the PMMH kernel.
-
+    n_jobs (int): Number of processor for parallel computing
     Returns:
     dict: A dictionary containing the updated marginal likelihood ('Z'), 
           state, theta, and the acceptance rate ('acc').
