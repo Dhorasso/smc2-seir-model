@@ -91,7 +91,7 @@ simulated_data = solve_seir_const_beta(seir_const_beta, true_theta, InitialState
 plt.figure(figsize=(10, 4))
 
 plt.plot(simulated_data['time'].index, simulated_data['obs'], label='New Infectied')
-
+plt.title ('Simulated incidence data')
 plt.xlabel('Time')
 plt.ylabel('Population')
 
