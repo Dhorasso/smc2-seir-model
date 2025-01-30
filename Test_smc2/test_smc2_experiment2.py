@@ -252,7 +252,7 @@ matrix_dict_state['Rt']=matrix_dict_state['B']/g
 
 # simulated_data['Rt'] =simulated_data['Bt']/(1/7)
 
-import matplotlib.pyplot as plt
+
 
 # Create a figure with a 2-row, 1-column subplot layout
 fig, axs = plt.subplots(1, 2, figsize=(16, 5))  # Adjusted figsize for two rows
