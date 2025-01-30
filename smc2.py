@@ -16,7 +16,7 @@ def SMC_squared(
     model, initial_state_info, initial_theta_info, observed_data, num_state_particles,
     num_theta_particles, observation_distribution, resampling_threshold=0.5, 
     pmmh_moves=5, c=0.5, n_jobs=10, resampling_method='stratified', tw=None, 
-    Real_time=False, SMC2_results=None, forecast_days=0, show_progress=True
+    real_time=False, smc2_prevResults=None, forecast_days=0, show_progress=True
 ):
     """
     Perform (Oline) Sequential Monte Carlo Squared (SMC^2/O-SMC^2) for a given model to estimate
@@ -36,8 +36,8 @@ def SMC_squared(
     n_jobs (int): Number of processor in the PMMH parallel computing
     resampling_method (str): Method for resampling ('stratified', 'systematic', 'residual', 'multinomial').
     tw (int): Window size for the (O-SMC^2).
-    SMC2_results (dict) : Previous SMC^2 results for previous days that are considered as prior here
-    Real_time (bool) : Whether to use SMC^2 time base on revious SMC^2 results
+    smc2_prevResults (dict) : Previous SMC^2 results for previous days that are considered as prior here
+    real_time (bool) : Whether to use SMC^2 time base on revious SMC^2 results
     forecast_days (int): Number of forecast days to perform.
     show_progress (bool): Whether to show a progress bar.
 
@@ -72,9 +72,9 @@ def SMC_squared(
     state_history = np.zeros((num_timesteps, num_theta_particles, num_state_particles, len(initialization_state['stateName'])))
     state_names = initialization_state['stateName']
    
-    if Real_time:
-        current_theta_particles = SMC2_results['current_theta_particles']
-        current_state_particles_all = SMC2_results['current_state_particles_all']
+    if real_time:
+        current_theta_particles = smc2_prevResults['current_theta_particles']
+        current_state_particles_all = smc2_prevResults['current_state_particles_all']
     state_history[0] = current_state_particles_all
     # Max number of theta particles for efficiency
     Nx_max = 2000
@@ -171,8 +171,8 @@ def SMC_squared(
         )
         # Final particle filter step for the last time step
         if t == num_timesteps - 1:
-            if Real_time:
-                current_state=SMC2_results['current_state_particles']
+            if real_time:
+                current_state=smc2_prevResults['current_state_particles']
             else:
                 ini_state = initial_one_state(initial_state_info, num_state_particles)
                 current_state = np.array(ini_state['currentStateParticles'])
