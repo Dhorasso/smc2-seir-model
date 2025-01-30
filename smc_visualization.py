@@ -11,28 +11,19 @@ def trace_smc(Traject):
     """
     Process the trajectories obtain from the SMC_squared in a matrix form
     """
-    
-
     matrix_dict = {}
     stateName=list(Traject[0].columns[1:])
     # Iterate through each state name
     for state in stateName:
       # Extract matrices for each state from all dataframes
       state_matrices = [df[state].values.reshape(1, -1) for df in Traject]
-    
       # Concatenate matrices horizontally
       combined_matrix = np.concatenate(state_matrices, axis=1)
-    
       # Reshape the combined matrix based on the shape of the original dataframe
       reshaped_matrix = combined_matrix.reshape(-1,Traject[0].shape[0])
-    
-      # Store the reshaped matrix in the dictionary with state name as the key
+          # Store the reshaped matrix in the dictionary with state name as the key
       matrix_dict[state] = reshaped_matrix 
-    
-    
     return matrix_dict
-
-
 
 
 def plot_smc(matrix, ax,  col_med='k', Date=None, window=1):
