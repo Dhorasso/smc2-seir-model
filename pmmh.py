@@ -77,7 +77,7 @@ def PMMH_kernel(model, Z_w, current_theta_particles, state_history, theta_names,
             PF_results = Particle_Filter(
                 model, state_names, state_current_t_k, untrans_theta_proposal,
                 theta_names, observed_data, num_state_particles,
-                observation_distribution, resampling_method
+                observation_distribution, resampling_method, n_jobs=n_jobs
             )
 
             Z_w_m_proposal=PF_results['incLogLike']
