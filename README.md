@@ -68,6 +68,6 @@ The function returns a dictionary containing:
 ## Example Usage
 
 
-Examples of using the `SMC_squared` function with an SEIR model to recreate the analyses conducted in the paper is provided in the file [Test_smc2](https://github.com/Dhorasso/smc2_seir/blob/main/Test_smc2).
+Examples of using the `SMC_squared` function with an SEIR model to recreate the analyses conducted in the paper is provided in the folder [Test_smc2](https://github.com/Dhorasso/smc2_seir/blob/main/Test_smc2).
 
 
