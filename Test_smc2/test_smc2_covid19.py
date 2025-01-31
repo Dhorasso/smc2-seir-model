@@ -23,7 +23,7 @@ from smc_visualization import trace_smc, plot_smc
 # Style Configuration
 plt.style.use('ggplot')
 
-############  SEPTP 1:import your dataset #######################################
+############  SEPTP 1: Import your dataset #######################################
 # Assuming the uploaded file is named "COVID-19_HPSC_Detailed_Statistics_Profile.csv"
 ######################################################################
 file_path = r"COVID-19_HPSC_Detailed_Statistics_Profile.csv"
