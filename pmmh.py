@@ -86,8 +86,8 @@ def PMMH_kernel(model, Z_w, current_theta_particles, state_history, theta_names,
             proposal = Z_proposal + log_prior_proposal
             
             # Log-posterior comparison with multivariate normal log-density
-            proposal += log_multivariate_normal_pdf(theta_current, theta_mean_current, theta_covariance_current)
-            current += log_multivariate_normal_pdf(theta_proposal, theta_mean_current, theta_covariance_current)
+            proposal += log_multivariate_normal_pdf(theta_current, theta_mean_current, theta_covariance_current) + 1e-12 # add 1e-12 to prevent murical instability
+            current += log_multivariate_normal_pdf(theta_proposal, theta_mean_current, theta_covariance_current) + 1e-12
             
             # Compute the acceptance ratio
             ratio = proposal - current
