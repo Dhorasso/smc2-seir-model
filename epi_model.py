@@ -67,18 +67,20 @@ def stochastic_seair_model(y, theta, theta_names, dt=1):
     A_next = A + Y_EA - Y_AR
     I_next = I + Y_EI - Y_IR
     R_next = R + Y_AR + Y_IR
+    # Update new infected
+    NI_next = Y_EI
     
     # Update transmission rate with stochastic volatility
     B_next = B * np.exp(nu_beta * normal(0, 1, size=B.shape) * dt)
 
-    # Update new infected
-    NI_next = Y_EI
+
 
     # Combine updated compartments into a 2D array
     y_next = np.column_stack((S_next, E_next, A_next, I_next, R_next, NI_next, B_next))
-    
     # Ensure all compartments remain non-negative
-    return np.maximum(y_next, 0)
+    y_next[:, :6] = np.maximum(y_next[:, :6], 0)
+
+    return y_next
 
 ######################################################################################################
 #####  SEIR model with time-varying Beta as a geometric random walk #################################
@@ -133,18 +135,19 @@ def stochastic_seir_model(y, theta, theta_names, dt=1):
     E_next = E + Y_SE - Y_EI
     I_next = I + Y_EI - Y_IR
     R_next = R + Y_IR
+    # Update new infected
+    NI_next = Y_EI
     
     # Update transmission rate with stochastic volatility
     B_next = B * np.exp(nu_beta * normal(0, 1, size=B.shape) * dt)
 
-    # Update new infected
-    NI_next = Y_EI
 
     # Combine updated compartments into a 2D array
     y_next = np.column_stack((S_next, E_next, I_next, R_next, NI_next, B_next))
-    
     # Ensure all compartments remain non-negative
-    return np.maximum(y_next, 0)
+    y_next[:, :5] = np.maximum(y_next[:, :5], 0)
+
+    return y_next
 
 ######################################################################################################
 #####  SEIR model with constant beta ######################################################
