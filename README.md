@@ -1,8 +1,8 @@
 # Sequential Monte Carlo Squared for online inference in stochastic epidemic models
 
 This repository content the Python code to run a Sequential Monte Carlo Squared (SMC^2) for online inference in a SEIR model.
-This framework supports both offline and online SMC^2 applications for parameter and state estimation in dynamic systems.  [Link to the paper on arXiv](
-https://doi.org/10.48550/arXiv.2505.09761)
+This framework supports both offline and online SMC^2 applications for parameter and state estimation in dynamic systems.  Link to the paper: [https://doi.org/10.1016/j.epidem.2025.100847](
+https://doi.org/10.1016/j.epidem.2025.100847)
 
 
 ---
