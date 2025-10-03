@@ -68,7 +68,7 @@ def PMMH_kernel(model, Z_w, current_theta_particles, state_history, theta_names,
         
         log_prior_proposal = log_prior(initial_theta_info, theta_proposal)
 
-        if log_prior_proposal != -np.inf:
+        if np.isfinite(log_prior_proposal):
             # Evaluate the current and proposal log-posterior
             current = Z_current + log_prior_current
             
@@ -94,7 +94,7 @@ def PMMH_kernel(model, Z_w, current_theta_particles, state_history, theta_names,
             alpha = np.exp(ratio)
 
             # Ensure the acceptance probability is real
-            if np.isreal(alpha):
+            if np.isfinite(alpha):
                 if np.random.uniform() < min(1, alpha):
                     Z_current = Z_proposal
                     Z_w_m_current = Z_w_m_proposal
