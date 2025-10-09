@@ -10,7 +10,8 @@ from smc import Particle_Filter
 from pmmh import PMMH_kernel
 from resampling import resampling_style
 #from observation_dist import compute_log_weight
-
+from multiprocessing import Pool
+import os, math
 
 def SMC_squared(
     model, initial_state_info, initial_theta_info, observed_data, num_state_particles,
@@ -71,6 +72,9 @@ def SMC_squared(
     current_state_particles_all = initialization_state['currentStateParticles']
     state_history = np.zeros((num_timesteps, num_theta_particles, num_state_particles, len(initialization_state['stateName'])))
     state_names = initialization_state['stateName']
+
+    total_cores = os.cpu_count()
+    n_jobs = max(1, math.floor(total_cores * 0.75))
    
     if real_time:
         current_theta_particles = smc2_prevResults['current_theta_particles']
@@ -144,7 +148,7 @@ def SMC_squared(
             state_history[t] = current_state_particles_all
 
             # Run the PMCMC kernel 
-            new_particles = Parallel(n_jobs=10)(delayed(PMMH_kernel)(
+            new_particles = Parallel(n_jobs=n_jobs)(delayed(PMMH_kernel)(
                 model, Z_w, current_theta_particles, state_history, theta_names,
                 observed_data.iloc[max(0, t - tw):t + 1], state_names, initial_theta_info, 
                 num_state_particles, theta_mean, theta_covariance, observation_distribution,
