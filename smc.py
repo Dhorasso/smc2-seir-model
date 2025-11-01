@@ -1,5 +1,5 @@
 ################################################
-# Code foir boostrap Particle filter
+# Code for boostrap Particle filter
 #############################################
 
 import numpy as np
